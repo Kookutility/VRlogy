@@ -3,11 +3,10 @@ import sys
 import pickle
 from sys import platform
 
-def set_advanced(window, param):
-    param["switch_advanced"] = True
-    window.quit()
+
 
 def getparams():
+    # 파라미터 파일을 로드하거나 기본값을 설정합니다.
     try:
         param = pickle.load(open("params.p", "rb"))
         if not isinstance(param, dict):
@@ -16,7 +15,7 @@ def getparams():
         param = {}
 
     param_defaults = {
-        "camid" : "0",
+        "camid": "0",
         "imgsize": 640,
         "neckoffset": [0.0, -0.2, 0.1],
         "prevskel": False,
@@ -50,57 +49,30 @@ def getparams():
         if key not in param:
             param[key] = value
 
+    # 카메라 선택 창을 생성합니다.
     window = tk.Tk()
+    window.title("Select Camera Type")
 
-    def on_close():
-        window.destroy()
-        sys.exit("INFO: Exiting... You can close the window after 10 seconds.")
-
-    window.protocol("WM_DELETE_WINDOW", on_close)
-
-    tk.Label(text="User ID:", width=50).pack()
-    user_id = tk.Entry(width=50)
-    user_id.pack()
-
-    tk.Label(text="Password:", width=50).pack()
-    user_password = tk.Entry(width=50, show="*")
-    user_password.pack()
+    tk.Label(window, text="VR 트래커가 실행될 환경을 선택해주세요!", width=50).pack()
     
-    def on_button_click():
-        open_camera_selection()
-        window.withdraw()
-
-    def open_camera_selection():
-        login_window = tk.Toplevel(window)
-        login_window.title("Select Camera Type")
-
-        tk.Label(login_window, text="VR 트래커가 실행될 환경을 선택해주세요!", width=50).pack()
-        
-
-        def set_camera(camid):
-            param["camid"] = camid
-            login_window.destroy()
-            window.destroy()
-            pickle.dump(param, open("params.p", "wb"))
-            save_and_continue()
-
-        tk.Button(login_window, text="Webcam", command=lambda: set_camera("1")).pack()
-        tk.Button(login_window, text="Phonecam", command=lambda: set_camera("http://192.168.1.103:8080/video")).pack()
-        tk.Button(login_window, text="Labtopcam", command=lambda: set_camera("0")).pack()
-    tk.Button(text='Login', command=on_button_click).pack()
-
-    def save_and_continue():
-        param["user_id"] = user_id.get()
-        param["user_password"] = user_password.get()
-        param["switch_advanced"] = False
-
+    def set_camera(camid):
+        param["camid"] = camid
         pickle.dump(param, open("params.p", "wb"))
         window.quit()
 
+    tk.Button(window, text="Webcam", command=lambda: set_camera("1")).pack()
+    tk.Button(window, text="Phonecam", command=lambda: set_camera("http://192.168.1.103:8080/video")).pack()
+    tk.Button(window, text="Labtopcam", command=lambda: set_camera("0")).pack()
 
+    # 카메라 선택 창을 실행합니다.
     window.mainloop()
+    
+    # 카메라 선택 창을 파괴합니다.
+    window.destroy()
 
     return param
 
 if __name__ == "__main__":
-    print(getparams())
+    # 파라미터를 가져옵니다.
+    params = getparams()
+    print("Parameters:", params)
