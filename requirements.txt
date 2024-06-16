@@ -1,0 +1,7 @@
+opencv-python
+numpy
+scipy
+mediapipe
+python-osc
+pyinstaller
+flask

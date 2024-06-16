@@ -1,0 +1,15 @@
+__pycache__
+movenet_model*
+checkpoint*
+saved_params.json
+params.p
+*.build*
+*.cmd
+*.dist*
+*.onefile-build*
+env*
+dist*
+build*
+*.json
+*.zip
+
