@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
 import pickle
-
+from tkinter import messagebox
 sys.path.append(os.getcwd())
 
 from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, draw_pose, keypoints_to_original, normalize_screen_coordinates, get_rot
@@ -194,8 +194,21 @@ class InitialWindow(tk.Frame):
         try:
             backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
             backend = backends[self.params.backend]()
-            backend.connect(self.params)
+            connection_result = backend.connect(self.params)
 
+            if connection_result == "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요":
+                messagebox.showerror("Connection Error", connection_result)
+                self.root.destroy()  # 기존 Tkinter 창을 제거하고 종료
+                make_initial_gui(self.params)  # 초기 GUI로 돌아갑니다.
+                return  # 함수 종료
+        except Exception as e:
+            print(f"ERROR: {e}")
+            messagebox.showerror("SteamVR Error", "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요")
+            self.root.destroy()
+            make_initial_gui(self.params)
+            return
+
+        try:
             print("INFO: Opening camera...")
             camera_thread = CameraStream(self.params)
 
@@ -208,12 +221,10 @@ class InitialWindow(tk.Frame):
 
             self.root.destroy()
             make_inference_gui(self.params)
-        #카메라 연결 실패 시
         except (ValueError, ConnectionError) as e:
             print(f"ERROR: {e}")
-            self.root.destroy() #기존 tk창 제거
-            main() #다시 카메라 소스 선택창으로 이동
-
+            self.root.destroy()
+            main()
     def open_settings(self):
         self.root.destroy()
         root = tk.Tk()
