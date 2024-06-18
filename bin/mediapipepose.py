@@ -188,26 +188,31 @@ class InitialWindow(tk.Frame):
         tk.Button(self.root, text='SteamVR과 연결', command=self.connect_steamvr).pack()
         tk.Button(self.root, text='설정', command=self.open_settings).pack()
         tk.Button(self.root, text='뒤로가기', command=self.go_back).pack()
-
+#스팀 vr 연결 및 카메라 연결, 추적 실행
     def connect_steamvr(self):
         global backend, camera_thread, pose, mp_drawing, mp_pose
+        try:
+            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
+            backend = backends[self.params.backend]()
+            backend.connect(self.params)
 
-        backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
-        backend = backends[self.params.backend]()
-        backend.connect(self.params)
+            print("INFO: Opening camera...")
+            camera_thread = CameraStream(self.params)
 
-        print("INFO: Opening camera...")
-        camera_thread = CameraStream(self.params)
+            print("INFO: Starting pose detector...")
+            pose = mp_pose.Pose(model_complexity=self.params.model,
+                                min_detection_confidence=0.5,
+                                min_tracking_confidence=self.params.min_tracking_confidence,
+                                smooth_landmarks=self.params.smooth_landmarks,
+                                static_image_mode=self.params.static_image)
 
-        print("INFO: Starting pose detector...")
-        pose = mp_pose.Pose(model_complexity=self.params.model,
-                            min_detection_confidence=0.5,
-                            min_tracking_confidence=self.params.min_tracking_confidence,
-                            smooth_landmarks=self.params.smooth_landmarks,
-                            static_image_mode=self.params.static_image)
-
-        self.root.destroy()
-        make_inference_gui(self.params)
+            self.root.destroy()
+            make_inference_gui(self.params)
+        #카메라 연결 실패 시
+        except (ValueError, ConnectionError) as e:
+            print(f"ERROR: {e}")
+            self.root.destroy() #기존 tk창 제거
+            main() #다시 카메라 소스 선택창으로 이동
 
     def open_settings(self):
         self.root.destroy()

@@ -10,6 +10,8 @@ import cv2
 import threading
 import sys
 import pickle
+import tkinter as tk
+from tkinter import messagebox
 def draw_pose(frame,pose,size):
     pose = pose*size
     for sk in EDGES:
@@ -307,25 +309,37 @@ class CameraStream():
     def __init__(self, params):
         self.params = params
         self.image_ready = False
+
         # setup camera capture
         if len(params.cameraid) <= 2:
-            cameraid = int(params.cameraid)
+            try:
+                cameraid = int(params.cameraid)
+            except ValueError:
+                self.show_error_message("카메라 ID가 잘못되었습니다! 정수를 입력해 주세요.")
+                raise ValueError("Invalid camera ID")
         else:
             cameraid = params.cameraid
-            
-        if params.camera_settings: # use advanced settings
-            self.cap = cv2.VideoCapture(cameraid, cv2.CAP_DSHOW) 
+
+        if params.camera_settings:  # use advanced settings
+            self.cap = cv2.VideoCapture(cameraid, cv2.CAP_DSHOW)
             self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
         else:
-            self.cap = cv2.VideoCapture(cameraid)  
+            self.cap = cv2.VideoCapture(cameraid)
 
+        # Check if camera opened successfully
         if not self.cap.isOpened():
-            print("ERROR: Could not open camera, try another id/IP")
-            shutdown(params)
+            self.show_error_message("카메라 설정이 잘못되었습니다! 다른 ID 또는 IP를 시도해 보세요.")
+            raise ConnectionError("Could not open camera")
+
+        # Attempt to read a frame to check connection for IP cameras
+        ret, _ = self.cap.read()
+        if not ret:
+            self.show_error_message("카메라에 연결할 수 없습니다! IP 주소를 확인해 주세요.")
+            raise ConnectionError("Could not connect to camera")
 
         if params.camera_height != 0:
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(params.camera_height))
-            
+
         if params.camera_width != 0:
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(params.camera_width))
 
@@ -333,24 +347,30 @@ class CameraStream():
         self.thread = threading.Thread(target=self.update, args=(), daemon=True)
         self.thread.start()
 
-    
+    def show_error_message(self, message):
+        root = tk.Tk()
+        root.withdraw()  # 창을 숨김
+        messagebox.showerror("오류", message)
+        root.destroy()
+
     def update(self):
         # continuously grab images
         while True:
-            ret, self.image_from_thread = self.cap.read()    
+            ret, self.image_from_thread = self.cap.read()
             self.image_ready = True
-            
-            if ret == 0:
+
+            if not ret:
                 print("ERROR: Camera capture failed! missed frames.")
                 self.params.exit_ready = True
                 return
+
     def read(self):
-        frame_rgb = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-        return self.frame, frame_rgb
+        frame_rgb = cv2.cvtColor(self.image_from_thread, cv2.COLOR_BGR2RGB)
+        return self.image_from_thread, frame_rgb
 
     def __del__(self):
-        self.cap.release()
- 
+        if hasattr(self, 'cap') and self.cap.isOpened():
+            self.cap.release()
 
 def shutdown(params):
     # first save parameters 
