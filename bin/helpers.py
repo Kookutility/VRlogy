@@ -300,7 +300,7 @@ def sendToSteamVR(text, num_tries=10, wait_time=0.1):
         ret = sendToSteamVR_(text)
         i += 1
         if i >= num_tries:
-            return None # probably better to throw error here and exit the program (assert?)
+            return "ERROR: Unable to connect to SteamVR. Please connect to SteamVR and try again."
     
     return ret
 
