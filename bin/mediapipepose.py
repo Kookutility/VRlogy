@@ -9,6 +9,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
+import pickle
 
 sys.path.append(os.getcwd())
 
@@ -18,9 +19,9 @@ import webui
 import parameters
 import vrlogy_authentication
 
-#계정인증
+# 계정인증
 vrlogy_authentication.login()
-
+#트래킹 실행
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -54,6 +55,7 @@ class InferenceWindow(tk.Frame):
         img_mirror_var = tk.BooleanVar(value=self.params.mirror)
         img_mirror_check = tk.Checkbutton(frame, text="미러", variable=img_mirror_var, command=lambda *args: self.params.change_mirror(bool(img_mirror_var.get())))
         img_mirror_check.grid(row=0, column=5)
+
     def schedule_autocalibrate(self):
         self.autocalibrate()
         self.root.after(1000, self.schedule_autocalibrate)  # 1초마다 자동 재추적
@@ -171,6 +173,7 @@ class InferenceWindow(tk.Frame):
         self.video_label.configure(image=imgtk)
 
         self.root.after(10, self.update_video_feed)
+
     def exit_program(self):
         self.params.ready2exit()
         self.root.quit()
@@ -215,18 +218,54 @@ class InitialWindow(tk.Frame):
     def go_back(self):
         self.root.destroy()
         main()
-
+#설정 창
 class SettingsWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.params = params
         self.root = root
 
+        param = pickle.load(open("params.p", "rb"))
+
+        # Camera width
+        tk.Label(self, text="Camera width:", width=50).pack()
+        self.camwidth = tk.Entry(self, width=20)
+        self.camwidth.pack()
+        self.camwidth.insert(0, param["camera_width"])
+
+        # Camera height
+        tk.Label(self, text="Camera height:", width=50).pack()
+        self.camheight = tk.Entry(self, width=20)
+        self.camheight.pack()
+        self.camheight.insert(0, param["camera_height"])
+
+        # Use hands
+        self.varhand = tk.IntVar(value=param["use_hands"])
+        self.hand_check = tk.Checkbutton(self, text="Spawn trackers for hands", variable=self.varhand)
+        self.hand_check.pack()
+
+        # Save button
+        tk.Button(self, text='Save', command=self.save_params).pack()
+
         tk.Button(self.root, text='뒤로가기', command=self.go_back).pack()
+
+    def save_params(self):
+        # Create a dictionary to store the parameters
+        updated_params = {
+            "camera_width": int(self.camwidth.get()),
+            "camera_height": int(self.camheight.get()),
+            "use_hands": self.varhand.get()
+        }
+
+        # Save parameters
+        pickle.dump(updated_params, open("params.p", "wb"))
+        self.root.destroy()
+        make_initial_gui(self.params)
 
     def go_back(self):
         self.root.destroy()
-        main()
+        make_initial_gui(self.params)
+
 
 def make_initial_gui(_params):
     root = tk.Tk()

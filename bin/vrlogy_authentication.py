@@ -1,4 +1,4 @@
-from tkinter import tk
+import tkinter as tk
 
 def login():
     # 로그인 정보를 담을 리스트
