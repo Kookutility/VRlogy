@@ -1,9 +1,7 @@
 import tkinter as tk
-import sys
+from pathlib import Path
+from tkinter import Tk, Canvas, PhotoImage, NW
 import pickle
-from sys import platform
-
-
 
 def getparams():
     # 파라미터 파일을 로드하거나 기본값을 설정합니다.
@@ -50,24 +48,115 @@ def getparams():
             param[key] = value
 
     # 카메라 선택 창을 생성합니다.
-    window = tk.Tk()
+    window = Tk()
+    window.geometry("534x392")
+    window.configure(bg = "#FFFFFF")
     window.title("Select Camera Type")
 
-    tk.Label(window, text="VR 트래커가 실행될 환경을 선택해주세요!", width=50).pack()
-    
     def set_camera(camid):
         param["camid"] = camid
         pickle.dump(param, open("params.p", "wb"))
         window.quit()
 
-    tk.Button(window, text="Webcam", command=lambda: set_camera("1")).pack()
-    tk.Button(window, text="Phonecam", command=lambda: set_camera("http://192.168.1.103:8080/video")).pack()
-    tk.Button(window, text="Labtopcam", command=lambda: set_camera("0")).pack()
+    # 새로운 프론트엔드 코드
+    OUTPUT_PATH = Path(__file__).parent
+    ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame2")
 
-    # 카메라 선택 창을 실행합니다.
+    def relative_to_assets(path: str) -> Path:
+        return ASSETS_PATH / Path(path)
+
+    def on_button_click(button_id):
+        if button_id == 1:
+            set_camera("1")  # Webcam
+        elif button_id == 2:
+            set_camera("http://192.168.1.103:8080/video")  # Phonecam
+        elif button_id == 3:
+            set_camera("0")  # Labtopcam
+
+    canvas = Canvas(
+        window,
+        bg = "#FFFFFF",
+        height = 392,
+        width = 534,
+        bd = 0,
+        highlightthickness = 0,
+        relief = "ridge"
+    )
+
+    canvas.place(x = 0, y = 0)
+    image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
+    image_1 = canvas.create_image(
+        267.0,
+        196.0,
+        image=image_image_1
+    )
+
+    canvas.create_text(
+        42.0,
+        289.0,
+        anchor="nw",
+        text="WEBCAM\n",
+        fill="#FFFFFF",
+        font=("Roboto", 10, "normal")
+    )
+
+    canvas.create_text(
+        214.0,
+        289.0,
+        anchor="nw",
+        text="PHONE\nCAMERA",
+        fill="#FFFFFF",
+        font=("Roboto", 10, "normal")
+    )
+
+    canvas.create_text(
+        381.0,
+        288.0,
+        anchor="nw",
+        text="INNER\n(LABTOP)",
+        fill="#FFFFFF",
+        font=("Roboto", 10, "normal")
+    )
+
+    button_image_1 = PhotoImage(
+        file=relative_to_assets("button_1.png"))
+    button_1 = canvas.create_image(
+        97.5,
+        212.5,
+        image=button_image_1
+    )
+    canvas.tag_bind(button_1, "<Button-1>", lambda e: on_button_click(1))
+
+    button_image_2 = PhotoImage(
+        file=relative_to_assets("button_2.png"))
+    button_2 = canvas.create_image(
+        269.5,
+        212.5,
+        image=button_image_2
+    )
+    canvas.tag_bind(button_2, "<Button-1>", lambda e: on_button_click(2))
+
+    button_image_3 = PhotoImage(
+        file=relative_to_assets("button_3.png"))
+    button_3 = canvas.create_image(
+        436.5,
+        212.5,
+        image=button_image_3
+    )
+    canvas.tag_bind(button_3, "<Button-1>", lambda e: on_button_click(3))
+
+    canvas.create_text(
+        30.0,
+        76.0,
+        anchor="nw",
+        text="VRlogy 트래커를 사용할 환경을 선택해주세요!",
+        fill="#E7EFFF",
+        font=("SourceSansPro", 17, "normal")
+    )
+
+    window.resizable(False, False)
     window.mainloop()
-    
-    # 카메라 선택 창을 파괴합니다.
     window.destroy()
 
     return param

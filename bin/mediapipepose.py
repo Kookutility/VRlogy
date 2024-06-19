@@ -18,10 +18,10 @@ from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
 import webui
 import parameters
 import vrlogy_authentication
+import gui3
 
-# 계정인증
-vrlogy_authentication.login()
-#트래킹 실행
+#gui3.py는 steamVR연결 설정 페이지, 이름변경 예정
+
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -185,12 +185,10 @@ class InitialWindow(tk.Frame):
         self.params = params
         self.root = root
 
-        tk.Button(self.root, text='SteamVR과 연결', command=self.connect_steamvr).pack()
-        tk.Button(self.root, text='설정', command=self.open_settings).pack()
-        tk.Button(self.root, text='뒤로가기', command=self.go_back).pack()
-#스팀 vr 연결 및 카메라 연결, 추적 실행
     def connect_steamvr(self):
         global backend, camera_thread, pose, mp_drawing, mp_pose
+        mp_pose = mp.solutions.pose
+        mp_drawing = mp.solutions.drawing_utils
         try:
             backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
             backend = backends[self.params.backend]()
@@ -198,14 +196,14 @@ class InitialWindow(tk.Frame):
 
             if connection_result == "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요":
                 messagebox.showerror("Connection Error", connection_result)
-                self.root.destroy()  # 기존 Tkinter 창을 제거하고 종료
-                make_initial_gui(self.params)  # 초기 GUI로 돌아갑니다.
-                return  # 함수 종료
+                self.root.destroy()
+                gui3.make_gui(self.params)
+                return
         except Exception as e:
             print(f"ERROR: {e}")
             messagebox.showerror("SteamVR Error", "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요")
             self.root.destroy()
-            make_initial_gui(self.params)
+            gui3.make_gui(self.params)
             return
 
         try:
@@ -225,6 +223,7 @@ class InitialWindow(tk.Frame):
             print(f"ERROR: {e}")
             self.root.destroy()
             main()
+
     def open_settings(self):
         self.root.destroy()
         root = tk.Tk()
@@ -234,7 +233,7 @@ class InitialWindow(tk.Frame):
     def go_back(self):
         self.root.destroy()
         main()
-#설정 창
+
 class SettingsWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -276,12 +275,11 @@ class SettingsWindow(tk.Frame):
         # Save parameters
         pickle.dump(updated_params, open("params.p", "wb"))
         self.root.destroy()
-        make_initial_gui(self.params)
+        gui3.make_gui(self.params)
 
     def go_back(self):
         self.root.destroy()
-        make_initial_gui(self.params)
-
+        gui3.make_gui(self.params)
 
 def make_initial_gui(_params):
     root = tk.Tk()
@@ -294,11 +292,6 @@ def make_inference_gui(_params):
     root.mainloop()
 
 def main():
-    global camera_thread, pose, mp_drawing, mp_pose, backend
-
-    mp_drawing = mp.solutions.drawing_utils
-    mp_pose = mp.solutions.pose
-
     print("INFO: Reading parameters...")
     params = parameters.Parameters()
 
@@ -308,7 +301,8 @@ def main():
     else:
         print("INFO: WebUI disabled in parameters")
 
-    make_initial_gui(params)
+    gui3.make_gui(params)
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
+    vrlogy_authentication.login()
     main()
