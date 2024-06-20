@@ -1,6 +1,5 @@
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Button
-from PIL import Image, ImageTk
+from tkinter import Tk, Canvas, Entry, PhotoImage
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame0")
@@ -10,13 +9,13 @@ def relative_to_assets(path: str) -> Path:
 
 login_info = []
 
-def on_login_click(window, entry_1, entry_2, button_1):
+def on_login_click(entry_1, entry_2):
     login_info.append(entry_1.get())  # Get text from entry_1
     login_info.append(entry_2.get())  # Get text from entry_2
-    window.quit() 
-    
+    window.quit()
+
 def login():
-    
+    global window  # Make window global so we can close it in on_login_click
     window = Tk()
 
     window.geometry("534x392")
@@ -33,52 +32,30 @@ def login():
     )
 
     canvas.place(x=0, y=0)
-    image_image_1 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("image_1.png")).convert("RGBA"))
+    image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
     canvas.create_image(
         267.0,
         196.0,
         image=image_image_1
     )
 
-    button_image_1 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("button_1.png")).convert("RGBA"))
-    button_1 = Button(
-        image=button_image_1,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: on_login_click(window, entry_1, entry_2, button_1),  # Set command to on_login_click
-        relief="flat",
-        bg="#FFFFFF",
-        activebackground="#FFFFFF"
-    )
-    button_1.place(
-        x=235.0,
-        y=308.0,
-        width=269.0,
-        height=48.0
-    )
+    # Load button images
+    button_image_1 = PhotoImage(
+        file=relative_to_assets("button_1.png"))
+    button_image_2 = PhotoImage(
+        file=relative_to_assets("button_2.png"))
 
-    button_image_2 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("button_2.png")).convert("RGBA"))
-    button_2 = Button(
-        image=button_image_2,
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: print("button_2 clicked"),
-        relief="flat",
-        bg="#FFFFFF",
-        activebackground="#FFFFFF"
-    )
-    button_2.place(
-        x=30.0,
-        y=308.0,
-        width=190.0,
-        height=48.0
-    )
+    # Create image buttons on canvas with adjusted height
+    button_1 = canvas.create_image(367.0, 352.0, image=button_image_1, anchor="center")  # Adjusted y-coordinate
+    button_2 = canvas.create_image(125.0, 352.0, image=button_image_2, anchor="center")  # Adjusted y-coordinate
 
-    entry_image_1 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("entry_1.png")).convert("RGBA"))
+    # Bind the image buttons to click events
+    canvas.tag_bind(button_1, "<Button-1>", lambda e: on_login_click(entry_1, entry_2))
+    canvas.tag_bind(button_2, "<Button-1>", lambda e: print("Button 2 clicked"))
+
+    entry_image_1 = PhotoImage(
+        file=relative_to_assets("entry_1.png"))
     canvas.create_image(
         369.5,
         217.0,  # Adjusted y coordinate
@@ -100,8 +77,8 @@ def login():
         height=42.0
     )
 
-    entry_image_2 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("entry_2.png")).convert("RGBA"))
+    entry_image_2 = PhotoImage(
+        file=relative_to_assets("entry_2.png"))
     canvas.create_image(
         369.5,
         281.0,  # Adjusted y coordinate
@@ -142,8 +119,8 @@ def login():
         font=("SourceSansPro SemiBold", 22 * -1)
     )
 
-    image_image_2 = ImageTk.PhotoImage(
-        Image.open(relative_to_assets("image_2.png")).convert("RGBA"))
+    image_image_2 = PhotoImage(
+        file=relative_to_assets("image_2.png"))
     canvas.create_image(
         261.0,
         95.0,
@@ -152,6 +129,6 @@ def login():
 
     window.resizable(False, False)
     window.mainloop()
-    window.destroy() 
+    window.destroy()
     return login_info
 
