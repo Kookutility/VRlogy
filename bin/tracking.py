@@ -7,9 +7,10 @@ from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
 from pathlib import Path
-import mediapipepose 
+import gui3 
 from helpers import sendToSteamVR, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, get_rot
 
+import pickle
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, camera_thread, backend, pose, mp_drawing, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -21,7 +22,9 @@ class InferenceWindow(tk.Frame):
         self.mp_drawing = mp_drawing
         params.gui = self       
         self.root = root
-
+        
+        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.title("VRlogy")
         self.setup_gui()
         self.update_video_feed()
         self.schedule_autocalibrate()
@@ -36,7 +39,7 @@ class InferenceWindow(tk.Frame):
         def on_button_click(button_id):
             if button_id == 1:
                 self.root.destroy()
-                mediapipepose.main()
+                gui3.make_gui(self.params)
             elif button_id == 3:
                 self.params.change_mirror(not self.params.mirror)
 
@@ -146,14 +149,20 @@ class InferenceWindow(tk.Frame):
             return
 
         img = self.camera_thread.image_from_thread.copy()
-        self.camera_thread.image_ready = False
+        param = pickle.load(open("params.p", "rb"))
+        param_width = param.get("camera_width")
+        param_height = param.get("camera_height")
+        
+        # 이미지의 width와 height를 param에서 가져온 값으로 리사이즈
+        img = cv2.resize(img, (param_width, param_height))
 
+        self.camera_thread.image_ready = False
         if self.params.rotate_image is not None:
             img = cv2.rotate(img, self.params.rotate_image)
 
         if self.params.mirror:
             img = cv2.flip(img, 1)
-
+        
         if max(img.shape) > self.params.maximgsize:
             ratio = max(img.shape) / self.params.maximgsize
             img = cv2.resize(img, (int(img.shape[1] / ratio), int(img.shape[0] / ratio)))
@@ -191,6 +200,7 @@ class InferenceWindow(tk.Frame):
         self.canvas.image = imgtk  # GC로 인한 이미지 손실 방지
 
         self.root.after(10, self.update_video_feed)
+
 
     def exit_program(self):
         self.params.ready2exit()

@@ -49,10 +49,12 @@ def getparams():
 
     # 카메라 선택 창을 생성합니다.
     window = Tk()
+
     window.geometry("534x392")
     window.configure(bg = "#FFFFFF")
-    window.title("Select Camera Type")
-
+    
+    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+    window.title("VRlogy")
     def set_camera(camid):
         param["camid"] = camid
         pickle.dump(param, open("params.p", "wb"))

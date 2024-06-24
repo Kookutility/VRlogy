@@ -28,7 +28,9 @@ class InitialWindow(tk.Frame):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.params = params
         self.root = root
-
+        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.title("VRlogy")
+        
     def connect_steamvr(self):
         global backend, camera_thread, pose, mp_drawing, mp_pose
         mp_pose = mp.solutions.pose

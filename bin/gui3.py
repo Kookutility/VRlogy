@@ -18,10 +18,10 @@ def on_click(event, button_name, instance):
 
 def make_gui(params):
     window = Tk()
-
+    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
     window.geometry("534x392")
     window.configure(bg = "#FFFFFF")
-
+    window.title("VRlogy")
     canvas = Canvas(
         window,
         bg = "#FFFFFF",

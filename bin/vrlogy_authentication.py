@@ -17,10 +17,10 @@ def on_login_click(entry_1, entry_2):
 def login():
     global window  # Make window global so we can close it in on_login_click
     window = Tk()
-
+    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
     window.geometry("534x392")
     window.configure(bg="#FFFFFF")
-
+    window.title("VRlogy")
     canvas = Canvas(
         window,
         bg="#FFFFFF",
