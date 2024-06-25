@@ -1,33 +1,134 @@
-import tkinter as tk
+from pathlib import Path
+from tkinter import Tk, Canvas, Entry, PhotoImage
+
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame0")
+
+def relative_to_assets(path: str) -> Path:
+    return ASSETS_PATH / Path(path)
+
+login_info = []
+
+def on_login_click(entry_1, entry_2):
+    login_info.append(entry_1.get())  # Get text from entry_1
+    login_info.append(entry_2.get())  # Get text from entry_2
+    window.quit()
 
 def login():
-    # 로그인 정보를 담을 리스트
-    login_info = []
+    global window  # Make window global so we can close it in on_login_click
+    window = Tk()
+    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+    window.geometry("534x392")
+    window.configure(bg="#FFFFFF")
+    window.title("VRlogy")
+    canvas = Canvas(
+        window,
+        bg="#FFFFFF",
+        height=392,
+        width=534,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
 
-    # 로그인 창을 생성합니다.
-    login_window = tk.Tk()
-    login_window.title("Login")
+    canvas.place(x=0, y=0)
+    image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
+    canvas.create_image(
+        267.0,
+        196.0,
+        image=image_image_1
+    )
 
-    tk.Label(login_window, text="User ID:", width=50).pack()
-    user_id_entry = tk.Entry(login_window, width=50)
-    user_id_entry.pack()
+    # Load button images
+    button_image_1 = PhotoImage(
+        file=relative_to_assets("button_1.png"))
+    button_image_2 = PhotoImage(
+        file=relative_to_assets("button_2.png"))
 
-    tk.Label(login_window, text="Password:", width=50).pack()
-    user_password_entry = tk.Entry(login_window, width=50, show="*")
-    user_password_entry.pack()
+    # Create image buttons on canvas with adjusted height
+    button_1 = canvas.create_image(367.0, 352.0, image=button_image_1, anchor="center")  # Adjusted y-coordinate
+    button_2 = canvas.create_image(125.0, 352.0, image=button_image_2, anchor="center")  # Adjusted y-coordinate
 
-    def on_login_click():
-        # 입력된 사용자 아이디와 비밀번호를 리스트에 저장합니다.
-        login_info.append(user_id_entry.get())
-        login_info.append(user_password_entry.get())
-        login_window.quit()
+    # Bind the image buttons to click events
+    canvas.tag_bind(button_1, "<Button-1>", lambda e: on_login_click(entry_1, entry_2))
+    canvas.tag_bind(button_2, "<Button-1>", lambda e: print("Button 2 clicked"))
 
-    tk.Button(login_window, text='Login', command=on_login_click).pack()
+    entry_image_1 = PhotoImage(
+        file=relative_to_assets("entry_1.png"))
+    canvas.create_image(
+        369.5,
+        217.0,  # Adjusted y coordinate
+        image=entry_image_1
+    )
+    entry_1 = Entry(
+        bd=0,
+        bg="#FFFFFF",
+        fg="#000716",
+        highlightthickness=0,
+        font=("SourceSansPro SemiBold", 15),  # Adjust font size and weight
+        insertbackground='#000000',
+        justify="left"
+    )
+    entry_1.place(
+        x=243.0,
+        y=195.0,  # Adjusted y coordinate
+        width=253.0,
+        height=42.0
+    )
 
-    # 로그인 창을 실행합니다.
-    login_window.mainloop()
-    
-    # 로그인 창을 파괴합니다.
-    login_window.destroy()
+    entry_image_2 = PhotoImage(
+        file=relative_to_assets("entry_2.png"))
+    canvas.create_image(
+        369.5,
+        281.0,  # Adjusted y coordinate
+        image=entry_image_2
+    )
+    entry_2 = Entry(
+        bd=0,
+        bg="#FFFFFF",
+        fg="#000716",
+        highlightthickness=0,
+        font=("SourceSansPro SemiBold", 15),  # Adjust font size and weight
+        show="*",  # Hide password characters
+        insertbackground='#000000',
+        justify="left"
+    )
+    entry_2.place(
+        x=243.0,
+        y=259.0,  # Adjusted y coordinate
+        width=253.0,
+        height=42.0
+    )
 
+    canvas.create_text(
+        30.0,
+        202.0,  # Adjusted y coordinate
+        anchor="nw",
+        text="ID",
+        fill="#E7EFFF",
+        font=("SourceSansPro SemiBold", 22 * -1)
+    )
+
+    canvas.create_text(
+        30.0,
+        257.0,  # Adjusted y coordinate
+        anchor="nw",
+        text="PASSWORD",
+        fill="#E7EFFF",
+        font=("SourceSansPro SemiBold", 22 * -1)
+    )
+
+    image_image_2 = PhotoImage(
+        file=relative_to_assets("image_2.png"))
+    canvas.create_image(
+        261.0,
+        95.0,
+        image=image_image_2
+    )
+
+    window.resizable(False, False)
+    window.mainloop()
+    window.destroy()
     return login_info
+
