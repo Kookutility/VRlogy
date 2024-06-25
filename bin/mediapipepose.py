@@ -21,8 +21,6 @@ import vrlogy_authentication
 import gui3
 from tracking import InferenceWindow  # 추가된 부분
 
-#gui3.py는 steamVR연결 설정 페이지, 이름변경 예정
-
 class InitialWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -149,6 +147,8 @@ def main():
 
     gui3.make_gui(params)
 
-if __name__ == "__main__": 
-    vrlogy_authentication.login()
+
+if __name__ == "__main__":
+    # 계정인증
+    vrlogy_authentication.run_login_loop()
     main()
