@@ -19,8 +19,7 @@ import webui
 import parameters
 import vrlogy_authentication
 
-# 계정인증
-vrlogy_authentication.login()
+
 #트래킹 실행
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
@@ -311,4 +310,6 @@ def main():
     make_initial_gui(params)
 
 if __name__ == "__main__":
+    # 계정인증
+    vrlogy_authentication.run_login_loop()
     main()
