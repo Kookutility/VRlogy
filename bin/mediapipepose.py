@@ -17,7 +17,7 @@ from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, ge
 from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
 import webui
 import parameters
-import vrlogy_authentication
+from vrlogy_authentication import run_login_loop
 import gui3
 from tracking import InferenceWindow  # 추가된 부분
 
@@ -150,5 +150,5 @@ def main():
 
 if __name__ == "__main__":
     # 계정인증
-    vrlogy_authentication.run_login_loop()
-    main()
+    if run_login_loop():
+        main()  # 로그인 성공 시 main() 함수 호출
