@@ -1,6 +1,8 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, PhotoImage
 
+conn = pymysql.connect(host = '113.131.111.147', user = 'root', password = 'vrlogy12@', db = 'vrlogydb', charset = 'utf8')
+
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame0")
 
