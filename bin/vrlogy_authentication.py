@@ -164,7 +164,7 @@ def create_login_window():
     window.protocol("WM_DELETE_WINDOW", on_closing)
     window.resizable(False, False)
     window.mainloop()
-    window.destroy()
+
 login_success = False
 
 def run_login_loop():
