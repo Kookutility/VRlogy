@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['mediapipepose.py'],
+a = Analysis(['vrlogy.py'],
              pathex=['bin/'],
              binaries=[],
              datas=[('C:/hostedtoolcache/windows/Python/3.10.8/x64/lib/site-packages/mediapipe/modules','mediapipe/modules'),],
@@ -22,7 +22,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='mediapipepose',
+          name='vrlogy',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -35,4 +35,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='mediapipepose')
+               name='vrlogy')
