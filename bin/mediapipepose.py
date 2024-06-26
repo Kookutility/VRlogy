@@ -14,10 +14,10 @@ from tkinter import messagebox
 sys.path.append(os.getcwd())
 
 from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, draw_pose, keypoints_to_original, normalize_screen_coordinates, get_rot
-from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
+from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend, OculusQuestBackend
 import webui
 import parameters
-import vrlogy_authentication
+from vrlogy_authentication import run_login_loop
 import gui3
 from tracking import InferenceWindow  # 추가된 부분
 
@@ -34,7 +34,7 @@ class InitialWindow(tk.Frame):
         mp_pose = mp.solutions.pose
         mp_drawing = mp.solutions.drawing_utils
         try:
-            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
+            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend, 3: OculusQuestBackend}
             backend = backends[self.params.backend]()
             connection_result = backend.connect(self.params)
 
@@ -85,6 +85,11 @@ class SettingsWindow(tk.Frame):
         self.root = root
 
         param = pickle.load(open("params.p", "rb"))
+        #backend
+        tk.Label(self, text="backend", width=50).pack()
+        self.backend = tk.Entry(self, width=20)
+        self.backend.pack()
+        self.backend.insert(0,param["backend"])
 
         # Camera width
         tk.Label(self, text="Camera width:", width=50).pack()
@@ -113,7 +118,8 @@ class SettingsWindow(tk.Frame):
         updated_params = {
             "camera_width": int(self.camwidth.get()),
             "camera_height": int(self.camheight.get()),
-            "use_hands": self.varhand.get()
+            "use_hands": self.varhand.get(),
+            "backend": int(self.backend.get())
         }
 
         # Save parameters
@@ -146,9 +152,10 @@ def main():
         print("INFO: WebUI disabled in parameters")
 
     gui3.make_gui(params)
+    print(backend)
 
 
 if __name__ == "__main__":
     # 계정인증
-    vrlogy_authentication.run_login_loop()
-    main()
+    #if run_login_loop():
+    main()  # 로그인 성공 시 main() 함수 호출
