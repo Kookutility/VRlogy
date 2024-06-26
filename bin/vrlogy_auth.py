@@ -2,9 +2,17 @@ from pathlib import Path
 from tkinter import Tk, Canvas, Entry, PhotoImage, messagebox
 import requests
 import webbrowser
+import os
 
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
+# 상대 경로 설정
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path("assets/frame0")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
@@ -95,8 +103,8 @@ def create_login_window():
     print("i'm login")
     global window
     window = Tk()
-    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
-    window.geometry("534x392")
+    window.wm_iconbitmap(icon_path)
+    window.geometry("534x392+100+100")
     window.configure(bg="#FFFFFF")
     window.title("VRlogy")
     

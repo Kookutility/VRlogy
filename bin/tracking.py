@@ -7,10 +7,20 @@ from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
 from pathlib import Path
-import gui3 
+import launch_setting_gui
 from helpers import sendToSteamVR, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, get_rot
-
+import os
 import pickle
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
+# 상대 경로 설정
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path("assets/frame4")
+
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, camera_thread, backend, pose, mp_drawing, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -23,28 +33,25 @@ class InferenceWindow(tk.Frame):
         params.gui = self       
         self.root = root
         
-        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.wm_iconbitmap(icon_path)
         self.root.title("VRlogy")
         self.setup_gui()
         self.update_video_feed()
         self.schedule_autocalibrate()
 
     def setup_gui(self):
-        OUTPUT_PATH = Path(__file__).parent
-        ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame4")
-
         def relative_to_assets(path: str) -> Path:
             return ASSETS_PATH / Path(path)
 
         def on_button_click(button_id):
             if button_id == 1:
                 self.root.destroy()
-                gui3.make_gui(self.params)
+                launch_setting_gui.make_gui(self.params)
             elif button_id == 3:
                 self.params.change_mirror(not self.params.mirror)
 
 
-        self.root.geometry("530x661")
+        self.root.geometry("530x661+100+100")
         self.root.configure(bg="#FFFFFF")
 
         self.canvas = Canvas(
