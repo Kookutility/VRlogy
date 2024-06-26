@@ -17,16 +17,24 @@ from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, ge
 from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend, OculusQuestBackend
 import webui
 import parameters
-from vrlogy_authentication import run_login_loop
-import gui3
+from vrlogy_auth import run_login_loop
+import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
+
+
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
 
 class InitialWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.params = params
         self.root = root
-        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.wm_iconbitmap(icon_path)
         self.root.title("VRlogy")
         
     def connect_steamvr(self):
@@ -41,13 +49,13 @@ class InitialWindow(tk.Frame):
             if connection_result == "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요":
                 messagebox.showerror("Connection Error", connection_result)
                 self.root.destroy()
-                gui3.make_gui(self.params)
+                launch_setting_gui.make_gui(self.params)
                 return
         except Exception as e:
             print(f"ERROR: {e}")
             messagebox.showerror("SteamVR Error", "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요")
             self.root.destroy()
-            gui3.make_gui(self.params)
+            launch_setting_gui.make_gui(self.params)
             return
 
         try:
@@ -125,11 +133,11 @@ class SettingsWindow(tk.Frame):
         # Save parameters
         pickle.dump(updated_params, open("params.p", "wb"))
         self.root.destroy()
-        gui3.make_gui(self.params)
+        main()
 
     def go_back(self):
         self.root.destroy()
-        gui3.make_gui(self.params)
+        launch_setting_gui.make_gui(self.params)
 
 def make_initial_gui(_params):
     root = tk.Tk()
@@ -151,8 +159,8 @@ def main():
     else:
         print("INFO: WebUI disabled in parameters")
 
-    gui3.make_gui(params)
-    print(backend)
+    launch_setting_gui.make_gui(params)
+    
 
 
 if __name__ == "__main__":

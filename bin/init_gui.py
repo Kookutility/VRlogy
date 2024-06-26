@@ -1,10 +1,21 @@
 import tkinter as tk
 from pathlib import Path
 from tkinter import Tk, Canvas, PhotoImage, NW
+import os
 import pickle
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
+# 상대 경로 설정
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path("assets/frame2")
 
 def getparams():
-    # 파라미터 파일을 로드하거나 기본값을 설정합니다.
+    # 파라미터 파일 로드
+    # 파일 실행 시 파라미터 값 확인 후 실행 설정
     try:
         param = pickle.load(open("params.p", "rb"))
         if not isinstance(param, dict):
@@ -47,33 +58,28 @@ def getparams():
         if key not in param:
             param[key] = value
 
-    # 카메라 선택 창을 생성합니다.
+    # 카메라 선택 창 생성
     window = Tk()
-
-    window.geometry("534x392")
-    window.configure(bg = "#FFFFFF")
     
-    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+    window.geometry("534x392+100+100")
+    window.wm_iconbitmap(icon_path)
+    window.configure(bg = "#FFFFFF")
     window.title("VRlogy")
     def set_camera(camid):
         param["camid"] = camid
         pickle.dump(param, open("params.p", "wb"))
         window.quit()
 
-    # 새로운 프론트엔드 코드
-    OUTPUT_PATH = Path(__file__).parent
-    ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame2")
-
     def relative_to_assets(path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
     def on_button_click(button_id):
         if button_id == 1:
-            set_camera("1")  # Webcam
+            set_camera("1")  #웹캠
         elif button_id == 2:
-            set_camera("http://192.168.1.103:8080/video")  # Phonecam
+            set_camera("http://192.168.1.103:8080/video")  #임시 설정
         elif button_id == 3:
-            set_camera("0")  # Labtopcam
+            set_camera("0")  #내장 카메라(노트북)
 
     canvas = Canvas(
         window,
@@ -164,6 +170,6 @@ def getparams():
     return param
 
 if __name__ == "__main__":
-    # 파라미터를 가져옵니다.
+    # 파라미터 가져오기
     params = getparams()
     print("Parameters:", params)
