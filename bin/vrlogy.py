@@ -14,12 +14,15 @@ from tkinter import messagebox
 sys.path.append(os.getcwd())
 
 from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, draw_pose, keypoints_to_original, normalize_screen_coordinates, get_rot
-from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
+
+from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend, OculusQuestBackend
+import webui
 
 import parameters
 from vrlogy_auth import run_login_loop
 import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
+
 
 import ctypes
 
@@ -44,7 +47,7 @@ class InitialWindow(tk.Frame):
         mp_pose = mp.solutions.pose
         mp_drawing = mp.solutions.drawing_utils
         try:
-            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
+            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend, 3: OculusQuestBackend}
             backend = backends[self.params.backend]()
             connection_result = backend.connect(self.params)
 
@@ -161,8 +164,8 @@ def main():
         webui_thread.start()
     else:
         print("INFO: WebUI disabled in parameters")
-'''
 
+'''
 
 if __name__ == "__main__":
     # 계정인증

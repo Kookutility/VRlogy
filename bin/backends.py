@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 from pythonosc import osc_bundle_builder
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
-
+import openxr as xr
 from helpers import shutdown
 import numpy as np
 
@@ -151,6 +151,64 @@ def osc_build_bundle(trackers):
         builder.add_content(osc_build_msg(tracker['name'], "position", tracker['position']))
         builder.add_content(osc_build_msg(tracker['name'], "rotation", tracker['rotation']))
     return builder.build()
+
+class OculusQuestBackend(Backend):
+    def __init__(self, **kwargs):
+        self.instance = None
+        self.system = None
+        self.session = None
+
+    def onparamchanged(self, params):
+        pass
+
+    def connect(self, params):
+        try:
+            self.instance = xr.create_instance(
+                application_name="OpenXR App",
+                application_version=1,
+                engine_name="Custom Engine",
+                engine_version=1,
+            )
+            self.system = self.instance.system(xr.FormFactor.HEAD_MOUNTED_DISPLAY)
+            self.session = self.instance.create_session(self.system)
+            print("OpenXR 연결 성공")
+        except xr.OpenXRError as e:
+            print(f"OpenXR 연결 실패: {e}")
+            return "ERROR: Unable to connect to OpenXR."
+        return "SUCCESS"
+
+    def updatepose(self, params, pose3d, rots, hand_rots):
+        try:
+            # HMD 데이터 가져오기
+            headset_pose = self.session.locate_space(self.system.space, self.instance.current_time())
+            headset_pos = headset_pose.position
+            headset_rot = headset_pose.orientation
+
+            neckoffset = R.from_quat([headset_rot.x, headset_rot.y, headset_rot.z, headset_rot.w]).apply(params.hmd_to_neck_offset)
+
+            if params.recalibrate:
+                print("INFO: 프레임 재보정 중")
+            else:
+                pose3d = pose3d * params.posescale
+                offset = pose3d[7] - (headset_pos + neckoffset)
+                # 포즈 업데이트 로직 추가
+                for i in range(pose3d.shape[0]):
+                    position = pose3d[i] - offset
+                    rotation = R.from_quat(rots[i]).as_quat()
+                    # OpenXR에 위치 및 회전 업데이트
+                    # self.session.update_pose(position, rotation)
+        except xr.OpenXRError as e:
+            print(f"OpenXR 포즈 업데이트 실패: {e}")
+            return "ERROR: Unable to update pose in OpenXR."
+        return True
+
+    def disconnect(self):
+        try:
+            self.session.end()
+            self.instance.destroy()
+            print("OpenXR 연결 종료")
+        except xr.OpenXRError as e:
+            print(f"OpenXR 연결 종료 실패: {e}")
 
 class VRChatOSCBackend(Backend):
 
