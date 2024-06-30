@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 from pythonosc import osc_bundle_builder
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
-import openxr as xr
+
 from helpers import shutdown
 import numpy as np
 
@@ -151,7 +151,7 @@ def osc_build_bundle(trackers):
         builder.add_content(osc_build_msg(tracker['name'], "position", tracker['position']))
         builder.add_content(osc_build_msg(tracker['name'], "rotation", tracker['rotation']))
     return builder.build()
-
+'''
 class OculusQuestBackend(Backend):
     def __init__(self, **kwargs):
         self.instance = None
@@ -209,7 +209,7 @@ class OculusQuestBackend(Backend):
             print("OpenXR 연결 종료")
         except xr.OpenXRError as e:
             print(f"OpenXR 연결 종료 실패: {e}")
-
+'''
 class VRChatOSCBackend(Backend):
 
     def __init__(self, **kwargs):

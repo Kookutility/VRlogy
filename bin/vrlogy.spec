@@ -1,33 +1,57 @@
-# -*- mode: python ; coding: utf-8 -*-
+# vrlogy.spec
 
 from PyInstaller.utils.hooks import collect_submodules
+import os
 
-hiddenimports = []
-hiddenimports += collect_submodules('numpy.f2py')
-hiddenimports += collect_submodules('scipy')
-hiddenimports += collect_submodules('pythonosc')
-hiddenimports += collect_submodules('OpenSSL')
+# Base path to the mediapipe resources
+mediapipe_base_path = "C:/Users/kook/anaconda3/mediapipe/modules"
 
+# Collecting necessary submodules from the required libraries
+hidden_imports = collect_submodules('numpy.f2py') + \
+                 collect_submodules('scipy') + \
+                 collect_submodules('pythonosc') + \
+                 collect_submodules('PIL') + \
+                 collect_submodules('mediapipe')
 
+# Defining the Analysis class, which is responsible for finding
+# and analyzing all the Python scripts, modules, and data files
 a = Analysis(
-    ['vrlogy.py'],
-    pathex=[],
+    ['vrlogy.py'],  # The main script
+    pathex=['.'],  # Path to the current directory
     binaries=[],
-    datas=[('assets', 'assets'), ('helpers.py', '.'), ('init_gui.py', '.'), ('launch_setting_gui.py', '.'), ('parameters.py', '.'), ('params.p', '.'), ('tracking.py', '.'), ('vrlogy_auth.py', '.'), ('backends.py', '.'), ('__init__.py', '.')],
-    hiddenimports=hiddenimports,
+    datas=[
+        ('assets', 'assets'),
+        ('helpers.py', '.'),
+        ('init_gui.py', '.'),
+        ('launch_setting_gui.py', '.'),
+        ('parameters.py', '.'),
+        ('tracking.py', '.'),
+        ('vrlogy_auth.py', '.'),
+        ('backends.py', '.'),
+        ('vrlogy.py', '.'),
+        ('saved_params.json', '.'),
+        (mediapipe_base_path, 'mediapipe/modules')
+    ],
+    hiddenimports=hidden_imports,
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    noarchive=False,
-    optimize=0,
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None
 )
-pyz = PYZ(a.pure)
 
+# Creating a PYZ file, which is a PyInstaller archive format
+# containing all the pure Python modules in a single file
+pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+
+# Creating the EXE class, which is responsible for generating
+# the final executable file from the analyzed data and modules
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
     name='vrlogy',
@@ -38,18 +62,17 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    icon='assets/icon/VRlogy_icon.ico'  # Adding the icon file
 )
 
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               upx_exclude=[],
-               name='vrlogy')
+# Collecting all the elements together to be included in the build
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='vrlogy'
+)

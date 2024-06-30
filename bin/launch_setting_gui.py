@@ -1,11 +1,11 @@
 from pathlib import Path
 from tkinter import *
-import vrlogy
+
 import os
 import pickle
 # 현재 스크립트의 디렉토리 경로를 가져옴
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
+import vrlogy
 # 아이콘 파일의 상대 경로 설정
 icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
 

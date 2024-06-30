@@ -15,8 +15,8 @@ sys.path.append(os.getcwd())
 
 from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, draw_pose, keypoints_to_original, normalize_screen_coordinates, get_rot
 
-from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend, OculusQuestBackend
-import webui
+from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
+
 
 import parameters
 from vrlogy_auth import run_login_loop
@@ -47,7 +47,7 @@ class InitialWindow(tk.Frame):
         mp_pose = mp.solutions.pose
         mp_drawing = mp.solutions.drawing_utils
         try:
-            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend, 3: OculusQuestBackend}
+            backends = {0: DummyBackend, 1: SteamVRBackend, 2: VRChatOSCBackend}
             backend = backends[self.params.backend]()
             connection_result = backend.connect(self.params)
 
@@ -169,5 +169,5 @@ def main():
 
 if __name__ == "__main__":
     # 계정인증
-    #if run_login_loop():
-    main()  # 로그인 성공 시 main() 함수 호출
+    if run_login_loop():
+        main()  # 로그인 성공 시 main() 함수 호출

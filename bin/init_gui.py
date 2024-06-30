@@ -47,7 +47,7 @@ def getparams():
         "smooth_landmarks": True,
         "min_tracking_confidence": 0.5,
         "static_image": False,
-        "backend": 2,#oculus test
+        "backend": 1,
         "backend_ip": "127.0.0.1",
         "backend_port": 9000,
         "advanced": False,

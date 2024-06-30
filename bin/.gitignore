@@ -10,10 +10,9 @@ params.p
 env*
 dist*
 build*
-*.json
 *.zip
-
+_ssl.pyd
 setup.py
-
+*.spec
 webui.py
 

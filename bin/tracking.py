@@ -108,32 +108,32 @@ class InferenceWindow(tk.Frame):
                 print("INFO: No pose detected, try to autocalibrate again.")
                 return
 
-            print(feet_middle)
+            #print(feet_middle)
             value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
-            print("INFO: Precalib z angle: ", value)
+            #print("INFO: Precalib z angle: ", value)
             self.params.rot_change_z(-value + 180)
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_z.apply(self.params.pose3d_og[j])
             feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
             value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
-            print("INFO: Postcalib z angle: ", value)
+            #print("INFO: Postcalib z angle: ", value)
             value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
-            print("INFO: Precalib x angle: ", value)
+            #print("INFO: Precalib x angle: ", value)
             self.params.rot_change_x(value + 90)
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_x.apply(self.params.pose3d_og[j])
             feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
             value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
-            print("INFO: Postcalib x angle: ", value)
+            #print("INFO: Postcalib x angle: ", value)
         if use_steamvr and self.params.calib_rot:
             feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
             value = np.arctan2(feet_rot[0], feet_rot[2])
             value_hmd = np.arctan2(headsetrot.as_matrix()[0][0], headsetrot.as_matrix()[2][0])
-            print("INFO: Precalib y value: ", value * 57.295779513)
-            print("INFO: hmd y value: ", value_hmd * 57.295779513)
+            #print("INFO: Precalib y value: ", value * 57.295779513)
+            #print("INFO: hmd y value: ", value_hmd * 57.295779513)
             value = value - value_hmd
             value = -value
-            print("INFO: Calibrate to value:", value * 57.295779513)
+            #print("INFO: Calibrate to value:", value * 57.295779513)
             self.params.rot_change_y(value * 57.295779513)
 
             for j in range(self.params.pose3d_og.shape[0]):
@@ -142,7 +142,7 @@ class InferenceWindow(tk.Frame):
             feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
             value = np.arctan2(feet_rot[0], feet_rot[2])
 
-            print("INFO: Postcalib y value: ", value * 57.295779513)
+            #print("INFO: Postcalib y value: ", value * 57.295779513)
 
         if use_steamvr and self.params.calib_scale:
             skelSize = np.max(self.params.pose3d_og, axis=0) - np.min(self.params.pose3d_og, axis=0)

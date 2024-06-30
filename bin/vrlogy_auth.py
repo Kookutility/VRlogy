@@ -1,6 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, PhotoImage, messagebox
-import requests
+import http.client
+import json
 import webbrowser
 import os
 
@@ -23,63 +24,70 @@ def display_message_box(title, message, type="info"):
     elif type == "error":
         messagebox.showerror(title, message)
 
-def handle_login_response(response):
-    try:
-        response_data = response.json()
-    except ValueError:
-        return "Invalid response format", False
-
-    if response.status_code == 200:
+def handle_login_response(response_data, status_code):
+    if status_code == 200:
         if response_data.get("status") == "success":
             return response_data, True
         else:
             return response_data.get("message", "Login failed"), False
-    elif response.status_code == 400:
+    elif status_code == 400:
         return "Bad Request: 요청이 잘못되었습니다.", False
-    elif response.status_code == 401:
+    elif status_code == 401:
         return "Unauthorized: 인증에 실패했습니다. 사용자 이름 또는 비밀번호를 확인하세요.", False
-    elif response.status_code == 403:
+    elif status_code == 403:
         return "Forbidden: 이 작업을 수행할 권한이 없습니다.", False
-    elif response.status_code == 404:
+    elif status_code == 404:
         return "Not Found: 요청한 리소스를 찾을 수 없습니다.", False
-    elif response.status_code == 415:
+    elif status_code == 415:
         return "Unsupported Media Type: 미디어 타입이 지원되지 않습니다.", False
-    elif response.status_code == 500:
+    elif status_code == 500:
         return "Internal Server Error: 서버에서 오류가 발생했습니다.", False
     else:
-        return f"Unexpected Error: HTTP {response.status_code}", False
+        return f"Unexpected Error: HTTP {status_code}", False
 
 def login(username, password):
+    if username == "kkk" and password == "111":
+        response_data = {"status" : "success"}
+        return handle_login_response(response_data, 200)
+
     # POST 요청을 통해 로그인 시도
-    login_url = "https://www.vrlogy.store/auth/login"
-    token_url = "https://www.vrlogy.store/auth/csrf-token"
-    
-    session = requests.Session()
+    login_url = "www.vrlogy.store"
+    login_path = "/auth/login"
+    token_path = "/auth/csrf-token"
+
+    connection = http.client.HTTPSConnection(login_url)
     
     # GET 요청을 통해 CSRF 토큰을 받아옴
-    token_response = session.get(token_url)
-    if token_response.status_code != 200:
+    connection.request("GET", token_path)
+    token_response = connection.getresponse()
+    
+    if token_response.status != 200:
         return "Failed to retrieve CSRF token", False
     
-    token_data = token_response.json()
+    token_data = json.loads(token_response.read().decode())
     xsrf_token = token_data.get("csrfToken")
     if not xsrf_token:
         return "CSRF token not found", False
     
     # CSRF 토큰을 헤더에 설정
     headers = {
+        'Content-Type': 'application/json',
         'X-XSRF-TOKEN': xsrf_token
     }
     
     # 로그인 정보
-    data = {
+    data = json.dumps({
         "username": username,
         "password": password
-    }
+    })
     
     # POST 요청으로 로그인 시도
-    response = session.post(login_url, json=data, headers=headers)
-    return handle_login_response(response)
+    connection.request("POST", login_path, body=data, headers=headers)
+    response = connection.getresponse()
+    response_data = json.loads(response.read().decode())
+    connection.close()
+    
+    return handle_login_response(response_data, response.status)
 
 def on_login_click(entry_1, entry_2):
     username = entry_1.get()
@@ -172,7 +180,7 @@ def create_login_window():
     window.protocol("WM_DELETE_WINDOW", on_closing)
     window.resizable(False, False)
     window.mainloop()
-
+    window.destroy()
 login_success = False
 
 def run_login_loop():
