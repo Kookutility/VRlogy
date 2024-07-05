@@ -49,7 +49,9 @@ class InferenceWindow(tk.Frame):
                 launch_setting_gui.make_gui(self.params)
             elif button_id == 3:
                 self.params.change_mirror(not self.params.mirror)
-
+            elif button_id == 4:
+                self.params.img_rot_dict_rev[1]
+                
 
         self.root.geometry("530x661+100+100")
         self.root.configure(bg="#FFFFFF")
@@ -69,10 +71,15 @@ class InferenceWindow(tk.Frame):
         self.canvas.create_image(265.0, 380.0, image=self.image_image_1)
 
         self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        
+        self.button_image_4 = PhotoImage(file=relative_to_assets("button_4.png"))
         self.button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
 
         button_1 = self.canvas.create_image(265, 611, image=self.button_image_1, anchor="center")
         self.canvas.tag_bind(button_1, "<Button-1>", lambda e: on_button_click(1))
+
+        button_4 = self.canvas.create_image(68, 588, image=self.button_image_4, anchor="center")
+        self.canvas.tag_bind(button_4, "<Button-1>", lambda e: on_button_click(4))
 
         button_3 = self.canvas.create_image(68, 548, image=self.button_image_3, anchor="center")
         self.canvas.tag_bind(button_3, "<Button-1>", lambda e: on_button_click(3))

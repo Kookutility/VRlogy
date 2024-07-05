@@ -91,19 +91,19 @@ class Parameters():
 
 
     def rot_change_y(self, value):                                  #callback functions. Whenever the value on sliders are changed, they are called
-        print(f"INFO: Changed y rotation value to {value}")
+        #print(f"INFO: Changed y rotation value to {value}")
         self.euler_rot_y = value
         self.global_rot_y = R.from_euler('y',value,degrees=True)     #and the rotation is updated with the new value.
         
 
     def rot_change_x(self, value):
-        print(f"INFO: Changed x rotation value to {value}")
+        #print(f"INFO: Changed x rotation value to {value}")
         self.euler_rot_x = value
         self.global_rot_x = R.from_euler('x',value-90,degrees=True) 
         
 
     def rot_change_z(self, value):
-        print(f"INFO: Changed z rotation value to {value}")
+        #print(f"INFO: Changed z rotation value to {value}")
         self.euler_rot_z = value
         self.global_rot_z = R.from_euler('z',value-180,degrees=True) 
          
