@@ -1,9 +1,10 @@
-from pathlib import Path
-from tkinter import Tk, Canvas, Entry, PhotoImage, messagebox
 import http.client
 import json
-import webbrowser
 import os
+from pathlib import Path
+from tkinter import Tk, Canvas, Entry, PhotoImage, messagebox
+import webbrowser
+from http.cookies import SimpleCookie
 
 # 현재 스크립트의 디렉토리 경로를 가져옴
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,17 +48,16 @@ def handle_login_response(response_data, status_code):
 
 def login(username, password):
     if username == "kkk" and password == "111":
-        response_data = {"status" : "success"}
+        response_data = {"status": "success"}
         return handle_login_response(response_data, 200)
 
-    # POST 요청을 통해 로그인 시도
+    # 로그인 URL과 경로
     login_url = "www.vrlogy.store"
     login_path = "/auth/login"
     token_path = "/auth/csrf-token"
 
+    # CSRF 토큰을 가져오기 위한 GET 요청
     connection = http.client.HTTPSConnection(login_url)
-    
-    # GET 요청을 통해 CSRF 토큰을 받아옴
     connection.request("GET", token_path)
     token_response = connection.getresponse()
     
@@ -69,22 +69,37 @@ def login(username, password):
     if not xsrf_token:
         return "CSRF token not found", False
     
-    # CSRF 토큰을 헤더에 설정
+    # 쿠키 설정
+    cookie = SimpleCookie(token_response.getheader("Set-Cookie"))
+    cookie_header = "; ".join([f"{key}={value.value}" for key, value in cookie.items()])
+
+    # 연결을 재설정
+    connection.close()
+    connection = http.client.HTTPSConnection(login_url)
+
+    # 로그인 요청 헤더와 데이터
     headers = {
         'Content-Type': 'application/json',
-        'X-XSRF-TOKEN': xsrf_token
+        'X-XSRF-TOKEN': xsrf_token,
+        'Cookie': cookie_header
     }
-    
-    # 로그인 정보
     data = json.dumps({
         "username": username,
         "password": password
     })
-    
+
     # POST 요청으로 로그인 시도
     connection.request("POST", login_path, body=data, headers=headers)
     response = connection.getresponse()
-    response_data = json.loads(response.read().decode())
+
+    response_content = response.read().decode()
+
+
+    try:
+        response_data = json.loads(response_content)
+    except json.JSONDecodeError:
+        return f"Invalid response format: {response_content}", False
+    
     connection.close()
     
     return handle_login_response(response_data, response.status)
@@ -181,8 +196,12 @@ def create_login_window():
     window.resizable(False, False)
     window.mainloop()
     window.destroy()
+
 login_success = False
 
 def run_login_loop():
     create_login_window()
     return login_success
+
+if __name__ == "__main__":
+    run_login_loop()

@@ -38,7 +38,7 @@ def getparams():
         "calib_scale": True,
         "calib_tilt": True,
         "calib_rot": True,
-        "use_hands": False,
+        "use_hands": True,
         "ignore_hip": False,
         "camera_settings": False,
         "camera_width": 640,
@@ -53,7 +53,6 @@ def getparams():
         "advanced": False,
         "webui": False
     }
-
     for key, value in param_defaults.items():
         if key not in param:
             param[key] = value
