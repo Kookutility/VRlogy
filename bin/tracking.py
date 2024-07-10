@@ -7,10 +7,20 @@ from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
 from pathlib import Path
-import gui3 
+import launch_setting_gui
 from helpers import sendToSteamVR, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, get_rot
-
+import os
 import pickle
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
+# 상대 경로 설정
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path("assets/frame4")
+
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, camera_thread, backend, pose, mp_drawing, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -23,28 +33,27 @@ class InferenceWindow(tk.Frame):
         params.gui = self       
         self.root = root
         
-        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.wm_iconbitmap(icon_path)
         self.root.title("VRlogy")
         self.setup_gui()
         self.update_video_feed()
         self.schedule_autocalibrate()
 
     def setup_gui(self):
-        OUTPUT_PATH = Path(__file__).parent
-        ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame4")
-
         def relative_to_assets(path: str) -> Path:
             return ASSETS_PATH / Path(path)
 
         def on_button_click(button_id):
             if button_id == 1:
                 self.root.destroy()
-                gui3.make_gui(self.params)
+                launch_setting_gui.make_gui(self.params)
             elif button_id == 3:
                 self.params.change_mirror(not self.params.mirror)
+            elif button_id == 4:
+                self.params.img_rot_dict_rev[1]
+                
 
-
-        self.root.geometry("530x661")
+        self.root.geometry("530x661+100+100")
         self.root.configure(bg="#FFFFFF")
 
         self.canvas = Canvas(
@@ -62,10 +71,12 @@ class InferenceWindow(tk.Frame):
         self.canvas.create_image(265.0, 380.0, image=self.image_image_1)
 
         self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        
         self.button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
 
         button_1 = self.canvas.create_image(265, 611, image=self.button_image_1, anchor="center")
         self.canvas.tag_bind(button_1, "<Button-1>", lambda e: on_button_click(1))
+
 
         button_3 = self.canvas.create_image(68, 548, image=self.button_image_3, anchor="center")
         self.canvas.tag_bind(button_3, "<Button-1>", lambda e: on_button_click(3))
@@ -101,32 +112,32 @@ class InferenceWindow(tk.Frame):
                 print("INFO: No pose detected, try to autocalibrate again.")
                 return
 
-            print(feet_middle)
+            #print(feet_middle)
             value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
-            print("INFO: Precalib z angle: ", value)
+            #print("INFO: Precalib z angle: ", value)
             self.params.rot_change_z(-value + 180)
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_z.apply(self.params.pose3d_og[j])
             feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
             value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
-            print("INFO: Postcalib z angle: ", value)
+            #print("INFO: Postcalib z angle: ", value)
             value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
-            print("INFO: Precalib x angle: ", value)
+            #print("INFO: Precalib x angle: ", value)
             self.params.rot_change_x(value + 90)
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_x.apply(self.params.pose3d_og[j])
             feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
             value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
-            print("INFO: Postcalib x angle: ", value)
+            #print("INFO: Postcalib x angle: ", value)
         if use_steamvr and self.params.calib_rot:
             feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
             value = np.arctan2(feet_rot[0], feet_rot[2])
             value_hmd = np.arctan2(headsetrot.as_matrix()[0][0], headsetrot.as_matrix()[2][0])
-            print("INFO: Precalib y value: ", value * 57.295779513)
-            print("INFO: hmd y value: ", value_hmd * 57.295779513)
+            #print("INFO: Precalib y value: ", value * 57.295779513)
+            #print("INFO: hmd y value: ", value_hmd * 57.295779513)
             value = value - value_hmd
             value = -value
-            print("INFO: Calibrate to value:", value * 57.295779513)
+            #print("INFO: Calibrate to value:", value * 57.295779513)
             self.params.rot_change_y(value * 57.295779513)
 
             for j in range(self.params.pose3d_og.shape[0]):
@@ -135,7 +146,7 @@ class InferenceWindow(tk.Frame):
             feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
             value = np.arctan2(feet_rot[0], feet_rot[2])
 
-            print("INFO: Postcalib y value: ", value * 57.295779513)
+            #print("INFO: Postcalib y value: ", value * 57.295779513)
 
         if use_steamvr and self.params.calib_scale:
             skelSize = np.max(self.params.pose3d_og, axis=0) - np.min(self.params.pose3d_og, axis=0)

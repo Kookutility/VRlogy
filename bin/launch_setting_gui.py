@@ -1,13 +1,22 @@
 from pathlib import Path
 from tkinter import *
-import mediapipepose
 
+import os
+import pickle
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+import vrlogy
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
+# 상대 경로 설정
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\frame3")
+ASSETS_PATH = OUTPUT_PATH / Path("assets/frame3")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
+    return {}
 def on_click(event, button_name, instance):
     if button_name == "button_1":
         instance.connect_steamvr()
@@ -17,11 +26,8 @@ def on_click(event, button_name, instance):
         instance.go_back()
 
 def make_gui(params):
+
     window = Tk()
-    window.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
-    window.geometry("534x392")
-    window.configure(bg = "#FFFFFF")
-    window.title("VRlogy")
     canvas = Canvas(
         window,
         bg = "#FFFFFF",
@@ -77,7 +83,10 @@ def make_gui(params):
         fill="#E7EFFF",
         font=("SourceSansPro SemiBold", 15 * -1)
     )
-
+    window.title("VRlogy")
+    window.wm_iconbitmap(icon_path)
+    window.geometry("534x392+100+100")
+    window.configure(bg="#FFFFFF")
     # Load button images
     button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
     button_image_2 = PhotoImage(file=relative_to_assets("button_2.png"))
@@ -100,7 +109,7 @@ def make_gui(params):
     )
 
     # InitialWindow 인스턴스를 생성합니다
-    instance = mediapipepose.InitialWindow(window, params)
+    instance = vrlogy.InitialWindow(window, params)
 
     # 인스턴스를 on_click 함수에 전달하여 버튼 이벤트와 바인딩합니다
     canvas.tag_bind(button_1, "<Button-1>", lambda event: on_click(event, "button_1", instance))

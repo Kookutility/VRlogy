@@ -302,6 +302,8 @@ def sendToSteamVR(text, num_tries=10, wait_time=0.1):
         if i >= num_tries:
             return "ERROR: Unable to connect to SteamVR. Please connect to SteamVR and try again."
     
+    #print(f"INFO: Sent to SteamVR: {text}")
+    #print(f"INFO: Response from SteamVR: {ret}")
     return ret
 
     

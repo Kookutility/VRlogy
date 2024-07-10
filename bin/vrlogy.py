@@ -13,22 +13,33 @@ import pickle
 from tkinter import messagebox
 sys.path.append(os.getcwd())
 
-from helpers import sendToSteamVR, CameraStream, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, draw_pose, keypoints_to_original, normalize_screen_coordinates, get_rot
+from helpers import CameraStream
+
 from backends import DummyBackend, SteamVRBackend, VRChatOSCBackend
-import webui
+
+
 import parameters
-import vrlogy_authentication
-import gui3
+from vrlogy_auth import run_login_loop
+import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
 
-#gui3.py는 steamVR연결 설정 페이지, 이름변경 예정
+
+import ctypes
+
+
+# 현재 스크립트의 디렉토리 경로를 가져옴
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
 
 class InitialWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.params = params
         self.root = root
-        self.root.wm_iconbitmap(r'C:\VRlogy\Mediapipe-VR-Fullbody-Tracking\bin\assets\icon\VRlogy_icon.ico')
+        self.root.wm_iconbitmap(icon_path)
         self.root.title("VRlogy")
         
     def connect_steamvr(self):
@@ -43,13 +54,13 @@ class InitialWindow(tk.Frame):
             if connection_result == "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요":
                 messagebox.showerror("Connection Error", connection_result)
                 self.root.destroy()
-                gui3.make_gui(self.params)
+                launch_setting_gui.make_gui(self.params)
                 return
         except Exception as e:
             print(f"ERROR: {e}")
             messagebox.showerror("SteamVR Error", "steamVR과 연결에 실패하였습니다. 재연결 후 다시 시도해주세요")
             self.root.destroy()
-            gui3.make_gui(self.params)
+            launch_setting_gui.make_gui(self.params)
             return
 
         try:
@@ -87,6 +98,11 @@ class SettingsWindow(tk.Frame):
         self.root = root
 
         param = pickle.load(open("params.p", "rb"))
+        #backend
+        tk.Label(self, text="backend", width=50).pack()
+        self.backend = tk.Entry(self, width=20)
+        self.backend.pack()
+        self.backend.insert(0,param["backend"])
 
         # Camera width
         tk.Label(self, text="Camera width:", width=50).pack()
@@ -115,17 +131,18 @@ class SettingsWindow(tk.Frame):
         updated_params = {
             "camera_width": int(self.camwidth.get()),
             "camera_height": int(self.camheight.get()),
-            "use_hands": self.varhand.get()
+            "use_hands": self.varhand.get(),
+            "backend": int(self.backend.get())
         }
 
         # Save parameters
         pickle.dump(updated_params, open("params.p", "wb"))
         self.root.destroy()
-        gui3.make_gui(self.params)
+        main()
 
     def go_back(self):
         self.root.destroy()
-        gui3.make_gui(self.params)
+        launch_setting_gui.make_gui(self.params)
 
 def make_initial_gui(_params):
     root = tk.Tk()
@@ -140,15 +157,17 @@ def make_inference_gui(_params, camera_thread, backend, pose, mp_drawing):
 def main():
     print("INFO: Reading parameters...")
     params = parameters.Parameters()
-
+    launch_setting_gui.make_gui(params)
+'''
     if params.webui:
         webui_thread = threading.Thread(target=webui.start_webui, args=(params,), daemon=True)
         webui_thread.start()
     else:
         print("INFO: WebUI disabled in parameters")
 
-    gui3.make_gui(params)
+'''
 
-if __name__ == "__main__": 
-    vrlogy_authentication.login()
-    main()
+if __name__ == "__main__":
+    # 계정인증
+    if run_login_loop():
+        main()  # 로그인 성공 시 main() 함수 호출
