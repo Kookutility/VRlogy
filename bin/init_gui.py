@@ -3,6 +3,7 @@ from pathlib import Path
 from tkinter import Tk, Canvas, PhotoImage, NW
 import os
 import pickle
+
 # 현재 스크립트의 디렉토리 경로를 가져옴
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -64,6 +65,7 @@ def getparams():
     window.wm_iconbitmap(icon_path)
     window.configure(bg = "#FFFFFF")
     window.title("VRlogy")
+    
     def set_camera(camid):
         param["camid"] = camid
         pickle.dump(param, open("params.p", "wb"))
@@ -74,11 +76,11 @@ def getparams():
 
     def on_button_click(button_id):
         if button_id == 1:
-            set_camera("1")  #웹캠
+            set_camera("1")  # 웹캠
         elif button_id == 2:
-            set_camera("http://192.168.1.103:8080/video")  #임시 설정
+            set_camera("http://192.168.1.103:8080/video")  # 임시 설정
         elif button_id == 3:
-            set_camera("0")  #내장 카메라(노트북)
+            set_camera("0")  # 내장 카메라(노트북)
 
     canvas = Canvas(
         window,
@@ -99,32 +101,61 @@ def getparams():
         image=image_image_1
     )
 
-    canvas.create_text(
-        42.0,
-        289.0,
-        anchor="nw",
-        text="WEBCAM\n",
-        fill="#FFFFFF",
-        font=("Roboto", 10, "normal")
-    )
-
-    canvas.create_text(
-        214.0,
-        289.0,
-        anchor="nw",
-        text="PHONE\nCAMERA",
-        fill="#FFFFFF",
-        font=("Roboto", 10, "normal")
-    )
-
-    canvas.create_text(
-        381.0,
+    # 텍스트 대신 이미지 사용
+    cam0_text_image = PhotoImage(
+        file=relative_to_assets("cam0_text.png"))
+    cam0_text = canvas.create_image(
+        413.0,
         288.0,
-        anchor="nw",
-        text="INNER\n(LABTOP)",
-        fill="#FFFFFF",
-        font=("Roboto", 10, "normal")
+        image=cam0_text_image,
+        anchor="nw"
     )
+
+    phone_cam_text_image = PhotoImage(
+        file=relative_to_assets("phone_cam_text.png"))
+    phone_cam_text = canvas.create_image(
+        240.0,
+        289.0,
+        image=phone_cam_text_image,
+        anchor="nw"
+    )
+
+    cam1_text_image = PhotoImage(
+        file=relative_to_assets("cam1_text.png"))
+    cam1_text = canvas.create_image(
+        77.0,
+        289.0,
+        image=cam1_text_image,
+        anchor="nw"
+    )
+
+    # 선택된 camid에 따라 빨간색 아이콘 표시
+    red_sign_image = PhotoImage(
+        file=relative_to_assets("red_sign.png"))
+
+    if param.get("camid") == "0":
+        canvas.create_image(
+            396.0,
+            288.0,
+            image=red_sign_image,
+            anchor="nw"
+        )
+
+    if param.get("camid") == "http://192.168.1.103:8080/video":
+        canvas.create_image(
+            229.0,
+            289.0,
+            image=red_sign_image,
+            anchor="nw"
+        )
+
+    if param.get("camid") == "1":
+        canvas.create_image(
+            57.0,
+            289.0,
+            image=red_sign_image,
+            anchor="nw"
+        )
 
     button_image_1 = PhotoImage(
         file=relative_to_assets("button_1.png"))
@@ -145,7 +176,7 @@ def getparams():
     canvas.tag_bind(button_2, "<Button-1>", lambda e: on_button_click(2))
 
     button_image_3 = PhotoImage(
-        file=relative_to_assets("button_3.png"))
+        file=relative_to_assets("button_1.png"))
     button_3 = canvas.create_image(
         436.5,
         212.5,
@@ -153,13 +184,13 @@ def getparams():
     )
     canvas.tag_bind(button_3, "<Button-1>", lambda e: on_button_click(3))
 
-    canvas.create_text(
-        30.0,
+    # 이미지로 텍스트를 대체
+    tracker_select_text_image = PhotoImage(
+        file=relative_to_assets("tracker_select_text.png"))
+    tracker_select_text = canvas.create_image(
+        267.0,
         76.0,
-        anchor="nw",
-        text="VRlogy 트래커를 사용할 환경을 선택해주세요!",
-        fill="#E7EFFF",
-        font=("SourceSansPro", 17, "normal")
+        image=tracker_select_text_image
     )
 
     window.resizable(False, False)
