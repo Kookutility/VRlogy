@@ -18,7 +18,7 @@
 ![20240701_154554](https://github.com/Kookutility/VRlogy/assets/133517150/b8426944-a75b-438c-981c-36ec0e2a3e60)
 ### <br>실시간으로 사용자의 자세가 VR환경에서 트래킹 됩니다!
 ### <br>2. 위치 이동
-[![Video Label](http://img.youtube.com/vi/cQnkehsTISU.jpg)](https://youtu.be/cQnkehsTISU)
+[![Video Label](http://img.youtube.com/vi/cQnkehsTISU/0.jpg)](https://youtu.be/cQnkehsTISU)
 ### <br> 제자리 걸음을 진행하면 실제 VR환경에서는 '걸음'으로 인식하여 이동 할 수 있어요!
 
 ## 소프트웨어 사용 방법 
