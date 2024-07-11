@@ -1,0 +1,8 @@
+opencv-python
+numpy
+scipy
+mediapipe
+flask
+pillow
+requests
+pythonosc
