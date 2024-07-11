@@ -5,8 +5,7 @@ from scipy.spatial.transform import Rotation as R
 from pythonosc import osc_bundle_builder, osc_message_builder, udp_client
 from helpers import shutdown
 import numpy as np
-import win32api
-import win32con
+import ctypes
 from walking_detect import InPlaceWalkingDetector
 
 class Backend(ABC):
@@ -25,7 +24,6 @@ class Backend(ABC):
     @abstractmethod
     def disconnect(self):
         ...
-
 class DummyBackend(Backend):
     def __init__(self, **kwargs):
         pass
@@ -111,15 +109,11 @@ class SteamVRBackend(Backend):
         if is_in_place_walking:
             # W 키 입력 시뮬레이션
             if not self.w_key_pressed:
-                self.press_w_key()
+                self.send_w_key_event(True)
                 self.w_key_pressed = True
-
-            move_distance = 0.70
-            forward_vector = headsetrot.apply([0, 0, move_distance])
-            headsetpos = [headsetpos[0] + forward_vector[0], headsetpos[1] + forward_vector[1], headsetpos[2] + forward_vector[2]]
         else:
             if self.w_key_pressed:
-                self.release_w_key()
+                self.send_w_key_event(False)
                 self.w_key_pressed = False
 
         if params.recalibrate:
@@ -149,17 +143,59 @@ class SteamVRBackend(Backend):
                     sendToSteamVR(f"updatepose {i} {joint[0]} {joint[1]} {joint[2] - 2} 1 0 0 0 {params.camera_latency} 0.8")
         return True
 
-    def press_w_key(self):
-        win32api.keybd_event(0x57, 0, 0, 0)  # 'W' 키 눌림
+    def send_w_key_event(self, press):
+        # Define necessary structures
+        PUL = ctypes.POINTER(ctypes.c_ulong)
+        
+        class KeyBdInput(ctypes.Structure):
+            _fields_ = [("wVk", ctypes.c_ushort),
+                        ("wScan", ctypes.c_ushort),
+                        ("dwFlags", ctypes.c_ulong),
+                        ("time", ctypes.c_ulong),
+                        ("dwExtraInfo", PUL)]
+        
+        class HardwareInput(ctypes.Structure):
+            _fields_ = [("uMsg", ctypes.c_ulong),
+                        ("wParamL", ctypes.c_short),
+                        ("wParamH", ctypes.c_ushort)]
+        
+        class MouseInput(ctypes.Structure):
+            _fields_ = [("dx", ctypes.c_long),
+                        ("dy", ctypes.c_long),
+                        ("mouseData", ctypes.c_ulong),
+                        ("dwFlags", ctypes.c_ulong),
+                        ("time", ctypes.c_ulong),
+                        ("dwExtraInfo", PUL)]
+        
+        class Input_I(ctypes.Union):
+            _fields_ = [("ki", KeyBdInput),
+                        ("mi", MouseInput),
+                        ("hi", HardwareInput)]
+        
+        class Input(ctypes.Structure):
+            _fields_ = [("type", ctypes.c_ulong),
+                        ("ii", Input_I)]
 
-    def release_w_key(self):
-        win32api.keybd_event(0x57, 0, win32con.KEYEVENTF_KEYUP, 0)  # 'W' 키 놓음
+        # SendInput function
+        def send_input(input_struct):
+            ctypes.windll.user32.SendInput(1, ctypes.byref(input_struct), ctypes.sizeof(input_struct))
+
+        # Create the input structure
+        key_input = Input(type=1, ii=Input_I(ki=KeyBdInput(
+            wVk=0,
+            wScan=0x11,  # Scan code for 'W' key
+            dwFlags=0x0008 if press else (0x0008 | 0x0002),
+            time=0,
+            dwExtraInfo=None
+        )))
+
+        # Send the input
+        send_input(key_input)
 
     def disconnect(self):
         if self.w_key_pressed:
-            self.release_w_key()
+            self.send_w_key_event(False)
             self.w_key_pressed = False
-
 def osc_build_msg(name, position_or_rotation, args):
     builder = osc_message_builder.OscMessageBuilder(address=f"/tracking/trackers/{name}/{position_or_rotation}")
     builder.add_arg(float(args[0]))

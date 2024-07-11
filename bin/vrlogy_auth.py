@@ -15,6 +15,7 @@ icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
 # 상대 경로 설정
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("assets/frame0")
+LOGIN_INFO_PATH = OUTPUT_PATH / "login_info.json"
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
@@ -48,7 +49,7 @@ def handle_login_response(response_data, status_code):
 
 def login(username, password):
     if username == "kkk" and password == "111":
-        response_data = {"status": "success"}
+        response_data = {"status": "success", "username": username}
         return handle_login_response(response_data, 200)
 
     # 로그인 URL과 경로
@@ -94,13 +95,15 @@ def login(username, password):
 
     response_content = response.read().decode()
 
-
     try:
         response_data = json.loads(response_content)
     except json.JSONDecodeError:
         return f"Invalid response format: {response_content}", False
     
     connection.close()
+    
+    if response.status == 200 and response_data.get("status") == "success":
+        response_data["username"] = username
     
     return handle_login_response(response_data, response.status)
 
@@ -112,10 +115,12 @@ def on_login_click(entry_1, entry_2):
     if success:  # 로그인 성공
         global login_success
         login_success = True
+        # 로그인 정보 저장
+        with open(LOGIN_INFO_PATH, "w") as file:
+            json.dump({"username": username}, file)
         window.quit()
-        display_message_box("Success", "Login successful!")
     else:  # 로그인 실패
-        display_message_box("Error", result, "error")
+        display_message_box("Error", "아이디와 비밀번호가 일치하지 않습니다.", "error")
         entry_1.delete(0, 'end')
         entry_2.delete(0, 'end')
 
@@ -181,8 +186,13 @@ def create_login_window():
     )
     entry_2.place(x=243.0, y=259.0, width=253.0, height=42.0)
 
-    canvas.create_text(30.0, 202.0, anchor="nw", text="ID", fill="#E7EFFF", font=("SourceSansPro SemiBold", 22 * -1))
-    canvas.create_text(30.0, 257.0, anchor="nw", text="PASSWORD", fill="#E7EFFF", font=("SourceSansPro SemiBold", 22 * -1))
+    # ID 텍스트를 이미지로 대체
+    id_image = PhotoImage(file=relative_to_assets("ID_text.png"))
+    canvas.create_image(30.0, 212.0, anchor="nw", image=id_image)
+
+    # PASSWORD 텍스트를 이미지로 대체
+    password_image = PhotoImage(file=relative_to_assets("password_text.png"))
+    canvas.create_image(30.0, 267.0, anchor="nw", image=password_image)
 
     window.image_image_2 = PhotoImage(file=relative_to_assets("image_2.png"))
     canvas.create_image(261.0, 95.0, image=window.image_image_2)

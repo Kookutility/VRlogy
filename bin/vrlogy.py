@@ -23,7 +23,6 @@ from vrlogy_auth import run_login_loop
 import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
 
-
 import ctypes
 
 
@@ -96,14 +95,14 @@ class SettingsWindow(tk.Frame):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.params = params
         self.root = root
-
         param = pickle.load(open("params.p", "rb"))
+        '''
         #backend
         tk.Label(self, text="backend", width=50).pack()
         self.backend = tk.Entry(self, width=20)
         self.backend.pack()
         self.backend.insert(0,param["backend"])
-
+        '''
         # Camera width
         tk.Label(self, text="Camera width:", width=50).pack()
         self.camwidth = tk.Entry(self, width=20)
@@ -123,9 +122,8 @@ class SettingsWindow(tk.Frame):
 
         # Save button
         tk.Button(self, text='Save', command=self.save_params).pack()
-
         tk.Button(self.root, text='뒤로가기', command=self.go_back).pack()
-
+        
     def save_params(self):
         # Create a dictionary to store the parameters
         updated_params = {

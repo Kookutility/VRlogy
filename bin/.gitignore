@@ -11,8 +11,10 @@ env*
 dist*
 build*
 *.zip
+config.py
 _ssl.pyd
 setup.py
 *.spec
 webui.py
+.venv
 
