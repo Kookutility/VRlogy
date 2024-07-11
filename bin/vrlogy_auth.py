@@ -188,11 +188,11 @@ def create_login_window():
 
     # ID 텍스트를 이미지로 대체
     id_image = PhotoImage(file=relative_to_assets("ID_text.png"))
-    canvas.create_image(30.0, 202.0, anchor="nw", image=id_image)
+    canvas.create_image(30.0, 212.0, anchor="nw", image=id_image)
 
     # PASSWORD 텍스트를 이미지로 대체
     password_image = PhotoImage(file=relative_to_assets("password_text.png"))
-    canvas.create_image(30.0, 257.0, anchor="nw", image=password_image)
+    canvas.create_image(30.0, 267.0, anchor="nw", image=password_image)
 
     window.image_image_2 = PhotoImage(file=relative_to_assets("image_2.png"))
     canvas.create_image(261.0, 95.0, image=window.image_image_2)

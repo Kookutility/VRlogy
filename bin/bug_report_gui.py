@@ -63,7 +63,7 @@ def send_bug_report(username, message):
     connection.close()
 
     if response.status == 200:
-        return True, "버그 보고가 성공적으로 전송되었습니다."
+        return True, "성공적으로 전송되었습니다."
     else:
         return False, f"버그 보고 전송에 실패했습니다: {response_content}"
 
@@ -145,6 +145,8 @@ def create_bug_report_window():
     def on_click(event, button_name):
         if button_name == "button_1":
             on_send_button_click(entry_1)
+            window.destroy()
+            launch_setting_gui.make_gui({})
         elif button_name == "button_2":
             window.destroy()
             launch_setting_gui.make_gui({})  # Pass appropriate parameters if needed
