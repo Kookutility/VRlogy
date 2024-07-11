@@ -2,7 +2,7 @@
 ## 실행화면(로그인/회원가입)
 ![VRlogy로그인](https://github.com/Kookutility/VRlogy/assets/133517150/f04ff891-4913-4431-940a-ba93bbfb6efe)
 <br>
-### [vrlogy](www.vrlogy.store/signup)을 통해서 회원가입 후 실행 가능합니다!
+### [VRlogy](https://www.vrlogy.store/signup)을 통해서 회원가입 후 실행 가능합니다!
 ## 카메라 환경 설정
 ![VRlogy_cam설정](https://github.com/Kookutility/VRlogy/assets/133517150/673ec1cd-6a16-4cc8-9036-c55d0b005d2c)
 ### <br>로그인 한 뒤 VR풀트래킹을 이용 할 카메라 환경을 설정 할 수 있어요!
@@ -22,7 +22,7 @@
 ### <br> 제자리 걸음을 진행하면 실제 VR환경에서는 '걸음'으로 인식하여 이동 할 수 있어요!
 
 ## 소프트웨어 사용 방법 
-### <br> 1. 소프트웨어를 [vrlogy](www.vrlogy.store)를 통해 다운로드합니다.
+### <br> 1. 소프트웨어를 [VRlogy](https://www.vrlogy.store)를 통해 다운로드합니다.
 
 ### <br> 2. 설치 파일 중 트래커 드라이버를 추가로 설치합니다.
 
