@@ -18,7 +18,7 @@
 ![20240701_154554](https://github.com/Kookutility/VRlogy/assets/133517150/b8426944-a75b-438c-981c-36ec0e2a3e60)
 ### <br>실시간으로 사용자의 자세가 VR환경에서 트래킹 됩니다!
 ### <br>2. 위치 이동
-![실제 실행화면](https://github.com/Kookutility/VRlogy/assets/133517150/be1dcc11-be3b-4c18-b79d-88051b6fc578)
+[![Video Label](http://img.youtube.com/vi/cQnkehsTISU.jpg)](https://youtu.be/cQnkehsTISU)
 ### <br> 제자리 걸음을 진행하면 실제 VR환경에서는 '걸음'으로 인식하여 이동 할 수 있어요!
 
 ## 소프트웨어 사용 방법 
@@ -36,4 +36,5 @@
 ### <br>만약 VRlogy실행 시 permissiondenied오류가 뜨면 마우스 우 클릭 후 관리자모드로 실행 하면 해당 오류를 해결 할 수 있습니다.
 
 ## VRlogy 실행 모듈 연결 노드
-![vrlogy 실행 모듈 연결 노드](https://github.com/Kookutility/VRlogy/assets/133517150/12d9c1f4-6293-4b73-ac6b-9480d45707e7)
+![Group 5](https://github.com/Kookutility/VRlogy/assets/133517150/879462b1-6021-4b0e-9a96-f84f0646a17b)
+
