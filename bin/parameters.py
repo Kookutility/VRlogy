@@ -58,7 +58,9 @@ class Parameters():
 
         self.exit_ready = False
 
+        # 이미지 회전 옵션을 OpenCV 회전 코드와 매핑하는 사전
         self.img_rot_dict = {0: None, 1: cv2.ROTATE_90_CLOCKWISE, 2: cv2.ROTATE_180, 3: cv2.ROTATE_90_COUNTERCLOCKWISE}
+        # OpenCV 회전 코드를 이미지 회전 옵션과 역으로 매핑하는 사전
         self.img_rot_dict_rev = {0: None, 1: cv2.ROTATE_90_CLOCKWISE, 2: cv2.ROTATE_180, 3: cv2.ROTATE_90_COUNTERCLOCKWISE}
 
         self.paused = False
