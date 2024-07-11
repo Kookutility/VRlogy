@@ -23,7 +23,6 @@ from vrlogy_auth import run_login_loop
 import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
 
-
 import ctypes
 
 

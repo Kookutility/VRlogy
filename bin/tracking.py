@@ -90,7 +90,7 @@ class InferenceWindow(tk.Frame):
 
     def schedule_autocalibrate(self):
         self.autocalibrate()
-        self.root.after(1000, self.schedule_autocalibrate)  # 1초마다 자동 재추적
+        self.root.after(5000, self.schedule_autocalibrate)  # 1초마다 자동 재추적
 
     def autocalibrate(self):
         use_steamvr = True if self.params.backend == 1 else False
