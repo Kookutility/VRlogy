@@ -1,5 +1,5 @@
 # VR 트레드밀을 위한 풀트래킹 VRlogy 소프트웨어
-## 자세한 설명은<br>![VRlogy사용설명서](https://www.vrlogy.store)에서 확인할 수 있습니다!
+## 자세한 설명은[VRlogy사용설명서](https://www.vrlogy.store)에서 확인할 수 있습니다!
 ## 실행화면(로그인/회원가입)
 ![VRlogy로그인](https://github.com/Kookutility/VRlogy/assets/133517150/f04ff891-4913-4431-940a-ba93bbfb6efe)
 <br>
