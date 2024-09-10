@@ -83,25 +83,27 @@ class InferenceWindow(tk.Frame):
 
 
         self.canvas_video = self.canvas.create_image(265.0, 280.0)
-
+    # 이미지 회전 기능 
     def set_rotation(self, value):
         self.params.rotate_image = self.params.img_rot_dict_rev[value]
         self.params.change_img_rot(value)
-
+    # 5초마다 자동 재추적
     def schedule_autocalibrate(self):
         self.autocalibrate()
-        self.root.after(5000, self.schedule_autocalibrate)  # 1초마다 자동 재추적
+        self.root.after(5000, self.schedule_autocalibrate)  
 
     def autocalibrate(self):
         use_steamvr = True if self.params.backend == 1 else False
 
         if use_steamvr:
+            #steamVR에서 자세 좌표 수신
             array = sendToSteamVR("getdevicepose 0")
 
             if array is None or len(array) < 10:
                 shutdown(self.params)
-
+            # 헤드셋 좌표 저장
             headsetpos = [float(array[3]), float(array[4]), float(array[5])]
+            #쿼터니언을 통해 머리 회전 좌표 계산
             headsetrot = R.from_quat([float(array[7]), float(array[8]), float(array[9]), float(array[6])])
 
             neckoffset = headsetrot.apply(self.params.hmd_to_neck_offset)
@@ -113,7 +115,7 @@ class InferenceWindow(tk.Frame):
                 return
 
             #print(feet_middle)
-            value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
+            value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513 #라이안 -> 도로 변환
             #print("INFO: Precalib z angle: ", value)
             self.params.rot_change_z(-value + 180)
             for j in range(self.params.pose3d_og.shape[0]):
@@ -158,7 +160,7 @@ class InferenceWindow(tk.Frame):
         if not self.camera_thread.image_ready:
             self.root.after(10, self.update_video_feed)
             return
-
+        # 오류 방지를 위해 기능 보류
         img = self.camera_thread.image_from_thread.copy()
         param = pickle.load(open("params.p", "rb"))
         param_width = param.get("camera_width")

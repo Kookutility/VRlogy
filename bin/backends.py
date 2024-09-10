@@ -143,8 +143,8 @@ class SteamVRBackend(Backend):
                     sendToSteamVR(f"updatepose {i} {joint[0]} {joint[1]} {joint[2] - 2} 1 0 0 0 {params.camera_latency} 0.8")
         return True
 
+# VR환경에 접근
     def send_w_key_event(self, press):
-        # Define necessary structures
         PUL = ctypes.POINTER(ctypes.c_ulong)
         
         class KeyBdInput(ctypes.Structure):
@@ -176,26 +176,24 @@ class SteamVRBackend(Backend):
             _fields_ = [("type", ctypes.c_ulong),
                         ("ii", Input_I)]
 
-        # SendInput function
         def send_input(input_struct):
             ctypes.windll.user32.SendInput(1, ctypes.byref(input_struct), ctypes.sizeof(input_struct))
 
-        # Create the input structure
         key_input = Input(type=1, ii=Input_I(ki=KeyBdInput(
             wVk=0,
-            wScan=0x11,  # Scan code for 'W' key
+            wScan=0x11,  
             dwFlags=0x0008 if press else (0x0008 | 0x0002),
             time=0,
             dwExtraInfo=None
         )))
 
-        # Send the input
         send_input(key_input)
 
     def disconnect(self):
         if self.w_key_pressed:
             self.send_w_key_event(False)
             self.w_key_pressed = False
+
 def osc_build_msg(name, position_or_rotation, args):
     builder = osc_message_builder.OscMessageBuilder(address=f"/tracking/trackers/{name}/{position_or_rotation}")
     builder.add_arg(float(args[0]))
