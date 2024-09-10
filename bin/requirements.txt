@@ -4,5 +4,5 @@ scipy
 mediapipe
 flask
 pillow
-requests
 pythonosc
+

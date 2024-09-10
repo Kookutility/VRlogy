@@ -53,7 +53,7 @@ def login(username, password):
         return handle_login_response(response_data, 200)
 
     # 로그인 URL과 경로
-    login_url = "www.vrlogy.store"
+    login_url = "vrlogy.site"
     login_path = "/auth/login"
     token_path = "/auth/csrf-token"
 
@@ -121,12 +121,15 @@ def on_login_click(entry_1, entry_2):
         window.quit()
     else:  # 로그인 실패
         display_message_box("Error", "아이디와 비밀번호가 일치하지 않습니다.", "error")
+        print(f"Login Failed: {result}")
         entry_1.delete(0, 'end')
         entry_2.delete(0, 'end')
 
 def open_signup_url():
-    webbrowser.open("https://www.vrlogy.store/signup")
+    webbrowser.open("https://vrlogy.site/signup")
 
+
+#-------------------------------------GUI--------------------------------------
 def create_login_window():
     print("i'm login")
     global window

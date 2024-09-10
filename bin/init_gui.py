@@ -99,7 +99,7 @@ def getparams():
         cam_ip = entry.get()
         set_camera(cam_ip)  # 입력된 주소 사용
         hide_ip_input()
-
+#-------------------------------------GUI--------------------------------------
     def update_red_sign():
         # 기존 빨간색 아이콘을 삭제하고 다시 그립니다.
         canvas.delete("red_sign")

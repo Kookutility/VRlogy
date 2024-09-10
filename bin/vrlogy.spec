@@ -1,23 +1,30 @@
-# vrlogy.spec
+# -*- mode: python ; coding: utf-8 -*-
 
-from PyInstaller.utils.hooks import collect_submodules
-import os
+block_cipher = None
 
-# Base path to the mediapipe resources
-mediapipe_base_path = "C:/Users/kook/anaconda3/mediapipe/modules"
+# Requirements 파일을 읽고 패키지 이름을 추출
+with open('requirements.txt') as f:
+    required_packages = f.read().splitlines()
 
-# Collecting necessary submodules from the required libraries
-hidden_imports = collect_submodules('numpy.f2py') + \
-                 collect_submodules('scipy') + \
-                 collect_submodules('pythonosc') + \
-                 collect_submodules('PIL') + \
-                 collect_submodules('mediapipe')
+# pythonosc의 하위 모듈 명시적으로 추가
+hiddenimports = required_packages + [
+    'pythonosc.osc_bundle_builder',
+    'pythonosc.osc_message_builder',
+    'pythonosc.udp_client',
+    'helpers', 
+    'init_gui',
+    'launch_setting_gui',
+    'parameters',
+    'tracking',
+    'vrlogy_auth',
+    'backends',
+    'walking_detect',
+    'bug_report_gui',
+]
 
-# Defining the Analysis class, which is responsible for finding
-# and analyzing all the Python scripts, modules, and data files
 a = Analysis(
-    ['vrlogy.py'],  # The main script
-    pathex=['.'],  # Path to the current directory
+    ['vrlogy.py'],
+    pathex=['bin/'],
     binaries=[],
     datas=[
         ('assets', 'assets'),
@@ -29,43 +36,41 @@ a = Analysis(
         ('vrlogy_auth.py', '.'),
         ('backends.py', '.'),
         ('vrlogy.py', '.'),
+        ('walking_detect.py', '.'),
+        ('bug_report_gui.py', '.'),
         ('saved_params.json', '.'),
-        (mediapipe_base_path, 'mediapipe/modules')
+        ('C:\\Users\\kook\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\mediapipe\\modules', 'mediapipe/modules')
     ],
-    hiddenimports=hidden_imports,
+    hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
-    cipher=None
+    cipher=block_cipher,
+    noarchive=False
 )
 
-# Creating a PYZ file, which is a PyInstaller archive format
-# containing all the pure Python modules in a single file
-pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+pyz = PYZ(
+    a.pure,
+    a.zipped_data,
+    cipher=block_cipher
+)
 
-# Creating the EXE class, which is responsible for generating
-# the final executable file from the analyzed data and modules
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=False,  # 데이터 파일과 바이너리를 포함하기 위해 False로 설정
     name='vrlogy',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=True,
-    icon='assets/icon/VRlogy_icon.ico'  # Adding the icon file
+    icon='assets/icon/VRlogy_icon.ico'
 )
 
-# Collecting all the elements together to be included in the build
 coll = COLLECT(
     exe,
     a.binaries,

@@ -1,15 +1,8 @@
 import os
 import sys
-import time
-import threading
-import cv2
-import numpy as np
 import tkinter as tk
-from tkinter import ttk
-from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation as R
 import mediapipe as mp
-import pickle
 from tkinter import messagebox
 sys.path.append(os.getcwd())
 
@@ -22,8 +15,6 @@ import parameters
 from vrlogy_auth import run_login_loop
 import launch_setting_gui 
 from tracking import InferenceWindow  # 추가된 부분
-
-import ctypes
 
 
 # 현재 스크립트의 디렉토리 경로를 가져옴
@@ -80,15 +71,38 @@ class InitialWindow(tk.Frame):
             self.root.destroy()
             main()
 
+    def go_back(self):
+        self.root.destroy()
+        main()
+
+def make_initial_gui(_params):
+    root = tk.Tk()
+    InitialWindow(root, _params).pack(side="top", fill="both", expand=True)
+    root.mainloop()
+
+def make_inference_gui(_params, camera_thread, backend, pose, mp_drawing):
+    root = tk.Tk()
+    InferenceWindow(root, _params, camera_thread, backend, pose, mp_drawing).pack(side="top", fill="both", expand=True)
+    root.mainloop()
+
+def main():
+    print("INFO: Reading parameters...")
+    params = parameters.Parameters()
+    launch_setting_gui.make_gui(params)
+
+if __name__ == "__main__":
+    # 계정인증
+    if run_login_loop():
+        main()  # 로그인 성공 시 main() 함수 호출
+
+
+# 세팅 화면 일단 주석 처리 
+'''
     def open_settings(self):
         self.root.destroy()
         root = tk.Tk()
         SettingsWindow(root, self.params).pack(side="top", fill="both", expand=True)
         root.mainloop()
-
-    def go_back(self):
-        self.root.destroy()
-        main()
 
 class SettingsWindow(tk.Frame):
     def __init__(self, root, params, *args, **kwargs):
@@ -96,13 +110,13 @@ class SettingsWindow(tk.Frame):
         self.params = params
         self.root = root
         param = pickle.load(open("params.p", "rb"))
-        '''
+        
         #backend
         tk.Label(self, text="backend", width=50).pack()
         self.backend = tk.Entry(self, width=20)
         self.backend.pack()
         self.backend.insert(0,param["backend"])
-        '''
+        
         # Camera width
         tk.Label(self, text="Camera width:", width=50).pack()
         self.camwidth = tk.Entry(self, width=20)
@@ -141,22 +155,7 @@ class SettingsWindow(tk.Frame):
     def go_back(self):
         self.root.destroy()
         launch_setting_gui.make_gui(self.params)
-
-def make_initial_gui(_params):
-    root = tk.Tk()
-    InitialWindow(root, _params).pack(side="top", fill="both", expand=True)
-    root.mainloop()
-
-def make_inference_gui(_params, camera_thread, backend, pose, mp_drawing):
-    root = tk.Tk()
-    InferenceWindow(root, _params, camera_thread, backend, pose, mp_drawing).pack(side="top", fill="both", expand=True)
-    root.mainloop()
-
-def main():
-    print("INFO: Reading parameters...")
-    params = parameters.Parameters()
-    launch_setting_gui.make_gui(params)
-'''
+        
     if params.webui:
         webui_thread = threading.Thread(target=webui.start_webui, args=(params,), daemon=True)
         webui_thread.start()
@@ -164,8 +163,3 @@ def main():
         print("INFO: WebUI disabled in parameters")
 
 '''
-
-if __name__ == "__main__":
-    # 계정인증
-    if run_login_loop():
-        main()  # 로그인 성공 시 main() 함수 호출

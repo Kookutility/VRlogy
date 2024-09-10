@@ -1,0 +1,2 @@
+INFO:root:2024-09-06 16:22:31.997837 - Market Buy: 55738.1 | Quantity: 0.001794 | Status: FAILED
+INFO:root:2024-09-06 16:23:32.325864 - Market Sell: 55707.5 | Quantity: 0.001794 | Status: FAILED

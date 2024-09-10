@@ -12,6 +12,10 @@ LOGIN_INFO_PATH = Path(__file__).parent / "login_info.json"
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("assets/frame5")
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# 아이콘 파일의 상대 경로 설정
+icon_path = os.path.join(script_dir, 'assets', 'icon', 'VRlogy_icon.ico')
+
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
@@ -36,7 +40,7 @@ def get_csrf_token(url, token_path):
     return xsrf_token, cookie_header
 
 def send_bug_report(username, message):
-    bug_report_url = "www.vrlogy.store"
+    bug_report_url = "vrlogy.site"
     bug_report_path = "/report"
     token_path = "/auth/csrf-token"
 
@@ -93,12 +97,15 @@ def on_closing():
 def go_back(self):
     self.root.destroy()
     vrlogy.main()
-
+    
+#-------------------------------------GUI--------------------------------------
 def create_bug_report_window():
     global window
     window = Tk()
-    window.geometry("534x392")
-    window.configure(bg="#FFFFFF")
+    window.geometry("534x392+100+100")
+    window.wm_iconbitmap(icon_path)
+    window.configure(bg = "#FFFFFF")
+    window.title("VRlogy")
 
     canvas = Canvas(
         window,

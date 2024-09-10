@@ -17,4 +17,4 @@ setup.py
 *.spec
 webui.py
 .venv
-
+*.pyc
