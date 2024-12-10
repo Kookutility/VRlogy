@@ -9,8 +9,8 @@ import mediapipe as mp
 from pathlib import Path
 import launch_setting_gui
 from helpers import sendToSteamVR, shutdown, mediapipeTo3dpose, get_rot_mediapipe, get_rot_hands, get_rot
+import os
 import pickle
-
 # 현재 스크립트의 디렉토리 경로를 가져옴
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -24,13 +24,13 @@ ASSETS_PATH = OUTPUT_PATH / Path("assets/frame4")
 class InferenceWindow(tk.Frame):
     def __init__(self, root, params, camera_thread, backend, pose, mp_drawing, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
-        
+
         self.params = params
         self.camera_thread = camera_thread
         self.backend = backend
         self.pose = pose
         self.mp_drawing = mp_drawing
-        params.gui = self
+        params.gui = self       
         self.root = root
         
         self.root.wm_iconbitmap(icon_path)
@@ -51,7 +51,8 @@ class InferenceWindow(tk.Frame):
                 self.params.change_mirror(not self.params.mirror)
             elif button_id == 4:
                 self.params.img_rot_dict_rev[1]
-        
+                
+
         self.root.geometry("530x661+100+100")
         self.root.configure(bg="#FFFFFF")
 
@@ -70,25 +71,27 @@ class InferenceWindow(tk.Frame):
         self.canvas.create_image(265.0, 380.0, image=self.image_image_1)
 
         self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        
         self.button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
 
         button_1 = self.canvas.create_image(265, 611, image=self.button_image_1, anchor="center")
         self.canvas.tag_bind(button_1, "<Button-1>", lambda e: on_button_click(1))
 
+
         button_3 = self.canvas.create_image(68, 548, image=self.button_image_3, anchor="center")
         self.canvas.tag_bind(button_3, "<Button-1>", lambda e: on_button_click(3))
 
+
         self.canvas_video = self.canvas.create_image(265.0, 280.0)
 
-    # 이미지 회전 기능 
     def set_rotation(self, value):
         self.params.rotate_image = self.params.img_rot_dict_rev[value]
         self.params.change_img_rot(value)
+    
 
-    # 5초마다 자동 재추적
     def schedule_autocalibrate(self):
         self.autocalibrate()
-        self.root.after(5000, self.schedule_autocalibrate)
+        self.root.after(20000, self.schedule_autocalibrate)  # 20초마다 자동 재추적
 
     def autocalibrate(self):
         use_steamvr = True if self.params.backend == 1 else False
@@ -98,11 +101,11 @@ class InferenceWindow(tk.Frame):
 
             if array is None or len(array) < 10:
                 shutdown(self.params)
+
             headsetpos = [float(array[3]), float(array[4]), float(array[5])]
             headsetrot = R.from_quat([float(array[7]), float(array[8]), float(array[9]), float(array[6])])
 
             neckoffset = headsetrot.apply(self.params.hmd_to_neck_offset)
-        
         if self.params.calib_tilt:
             try:
                 feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
@@ -110,39 +113,51 @@ class InferenceWindow(tk.Frame):
                 print("INFO: No pose detected, try to autocalibrate again.")
                 return
 
+            #print(feet_middle)
             value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
+            #print("INFO: Precalib z angle: ", value)
             self.params.rot_change_z(-value + 180)
-            
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_z.apply(self.params.pose3d_og[j])
-
             feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
+            value = np.arctan2(feet_middle[0], -feet_middle[1]) * 57.295779513
+            #print("INFO: Postcalib z angle: ", value)
             value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
+            #print("INFO: Precalib x angle: ", value)
             self.params.rot_change_x(value + 90)
-
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_x.apply(self.params.pose3d_og[j])
-
+            feet_middle = (self.params.pose3d_og[0] + self.params.pose3d_og[5]) / 2
+            value = np.arctan2(feet_middle[2], -feet_middle[1]) * 57.295779513
+            #print("INFO: Postcalib x angle: ", value)
         if use_steamvr and self.params.calib_rot:
             feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
             value = np.arctan2(feet_rot[0], feet_rot[2])
             value_hmd = np.arctan2(headsetrot.as_matrix()[0][0], headsetrot.as_matrix()[2][0])
+            #print("INFO: Precalib y value: ", value * 57.295779513)
+            #print("INFO: hmd y value: ", value_hmd * 57.295779513)
             value = value - value_hmd
             value = -value
+            #print("INFO: Calibrate to value:", value * 57.295779513)
             self.params.rot_change_y(value * 57.295779513)
 
             for j in range(self.params.pose3d_og.shape[0]):
                 self.params.pose3d_og[j] = self.params.global_rot_y.apply(self.params.pose3d_og[j])
+
+            feet_rot = self.params.pose3d_og[0] - self.params.pose3d_og[5]
+            value = np.arctan2(feet_rot[0], feet_rot[2])
+
+            #print("INFO: Postcalib y value: ", value * 57.295779513)
 
         if use_steamvr and self.params.calib_scale:
             skelSize = np.max(self.params.pose3d_og, axis=0) - np.min(self.params.pose3d_og, axis=0)
             self.params.posescale = headsetpos[1] / skelSize[1]
 
         self.params.recalibrate = False
-
+    
     def update_video_feed(self):
         if not self.camera_thread.image_ready:
-            self.root.after(50, self.update_video_feed)  # 50ms 주기로 변경하여 성능 최적화
+            self.root.after(10, self.update_video_feed)
             return
 
         img = self.camera_thread.image_from_thread.copy()
@@ -150,11 +165,10 @@ class InferenceWindow(tk.Frame):
         param_width = param.get("camera_width")
         param_height = param.get("camera_height")
         
-        # 이미지 리사이즈
+        # 이미지의 width와 height를 param에서 가져온 값으로 리사이즈
         img = cv2.resize(img, (param_width, param_height))
 
         self.camera_thread.image_ready = False
-
         if self.params.rotate_image is not None:
             img = cv2.rotate(img, self.params.rotate_image)
 
@@ -195,9 +209,10 @@ class InferenceWindow(tk.Frame):
 
         imgtk = ImageTk.PhotoImage(image=Image.fromarray(img_rgb))
         self.canvas.itemconfig(self.canvas_video, image=imgtk)
-        self.canvas.image = imgtk
+        self.canvas.image = imgtk  # GC로 인한 이미지 손실 방지
 
         self.root.after(10, self.update_video_feed)
+    
 
     def exit_program(self):
         self.params.ready2exit()
