@@ -8,7 +8,7 @@ class InPlaceWalkingDetector:
         self.left_knee_angles = []
         self.right_knee_angles = []
         self.time_stamps = []
-        self.window_size = 30  # 분석할 프레임 수
+        self.window_size = 10  # 분석할 프레임 수
         self.crossing_threshold = 0.02  # 교차 판단 임계값
         self.walking_threshold = 1.5    # 걷기 감지 임계값
         self.amplitude_threshold = 0.05 # 진폭 임계값
